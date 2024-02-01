@@ -1,2 +1,8 @@
 nose
 sphinx
+yfinance
+numpy
+matplotlib
+pytictoc
+pandas
+pandas_datareader
