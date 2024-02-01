@@ -129,6 +129,11 @@ def plot_returns(df, ticker, start, end):
 
 
 if __name__ == "__main__":
+    t = TicToc()
+    t.tic() # start timer
+
+
+
     ticker = sys.argv[1]
 
     start = '2022-01-01' 
@@ -171,11 +176,6 @@ if __name__ == "__main__":
     print_space()
     print(df.head())
 
-
-    
-
-
-
     print_space()
 
     print("Stock Ticker: ", ticker)
@@ -197,3 +197,6 @@ if __name__ == "__main__":
     plot_returns = plot_returns(df, ticker, start, end)
     plt.savefig(ticker + "_returns_"+ start + '_to_' + end + '.png')
 
+
+
+    t.toc() #elapsed time
