@@ -26,13 +26,13 @@ if __name__ == "__main__":
     with open(sys.argv[1], 'r') as f:
         ticker_list = f.read().splitlines()
 
-    for ticker in ticker_list:
+    for count, ticker in enumerate(ticker_list):
 
         # print_space()
         # print("Analyzing Stock Ticker: ", ticker)
 
         # # Start date = todays date offset by 6 months
-        start_timestamp = pd.to_datetime('today') - pd.DateOffset(months=36)
+        start_timestamp = pd.to_datetime('today') - pd.DateOffset(months=9)
         start:str = start_timestamp.strftime('%Y-%m-%d')
         # End date = todays date
         end_timestamp = pd.to_datetime('today')
@@ -114,17 +114,17 @@ if __name__ == "__main__":
         # make an entry column that is the sum of the Buy_Sell_5_10, Buy_Sell_10_20, and Buy_Sell_20_50
         df['entry'] = df['Buy_Sell_5_10'] + df['Buy_Sell_10_20'] + df['Buy_Sell_20_50']
 
-        # if the entry is 3 for the last 3 rows, then print a buy signal
-        # if the entry is -3 for the last 3 rows, then print a sell signal
+        # if the entry is 3 for the last 10 rows, then print a buy signal
         if all(df['entry'].iloc[-10:] == 3):
             print("Buy: ", ticker)
             # Save the plot to a file in the figures directory with the ticker name and the moving averages
-            plt.savefig('figures/shortTerm/' + ticker + "_SMAs_"+ start + '_to_' + end + '.png')
+            plt.savefig('figures/shortTerm/' + str(count+ 1) + " - " + ticker + "_SMAs_"+ end + '.png')
 
+        # if the entry is -3 for the last 10 rows, then print a sell signal
         if all(df['entry'].iloc[-10:] == -3):
             print("Sell: ", ticker)
             # Save the plot to a file in the figures directory with the ticker name and the moving averages
-            plt.savefig('figures/shortTerm/' + ticker + "_SMAs_"+ start + '_to_' + end + '.png')
+            plt.savefig('figures/shortTerm/' + str(count + 1) + " - " + ticker + "_SMAs_"+ end + '.png')
 
         # Print the last 5 rows of the dataframe
         # print(df.tail())
