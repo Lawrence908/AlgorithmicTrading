@@ -3,7 +3,6 @@ import yfinance as yf
 import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
-import pandas_ta as ta
 import pandas_datareader as pdr
 
 
@@ -49,6 +48,7 @@ def calculate_log_returns(df):
 
 # Caclulate the cumulative log returns with exponential
 # And add it to the dataframe
+
 def calculate_cum_log_returns(df):
     cum_log_returns = np.exp(np.log(1 + df['Adj Close'].pct_change()).cumsum()) - 1
     df['Cum_Log_Returns'] = cum_log_returns
@@ -129,9 +129,14 @@ def plot_returns(df, ticker, start, end):
 
 
 if __name__ == "__main__":
+    t = TicToc()
+    t.tic() # start timer
+
+
+
     ticker = sys.argv[1]
 
-    start = '2023-06-01' 
+    start = '2022-01-01' 
     end = '2024-02-01'
 
     df = get_stock_data(ticker, start, end)
@@ -148,13 +153,13 @@ if __name__ == "__main__":
     df = calculate_moving_avg(df, 14)
     df = calculate_moving_avg(df, 21)
 
-    # df = calculate_moving_avg(df, 30)
-    # df = calculate_moving_avg(df, 60)
-    # df = calculate_moving_avg(df, 90)
+    df = calculate_moving_avg(df, 30)
+    df = calculate_moving_avg(df, 60)
+    df = calculate_moving_avg(df, 90)
 
-    # df = calculate_moving_avg(df, 100)
-    # df = calculate_moving_avg(df, 150)
-    # df = calculate_moving_avg(df, 200)
+    df = calculate_moving_avg(df, 100)
+    df = calculate_moving_avg(df, 150)
+    df = calculate_moving_avg(df, 200)
 
     # Calculate buy sell signal using the moving averages
     df = calculate_buy_sell_signal(df, '9', '21')
@@ -170,17 +175,6 @@ if __name__ == "__main__":
 
     print_space()
     print(df.head())
-
-
-    
-
-
-        # # Calculate the cumulative log returns with exponential
-        # # And add it to the dataframe
-        # cum_log_returns = np.exp(np.log(1 + df['Adj Close'].pct_change()).cumsum()) - 1
-        # df['Cum_Log_Returns'] = cum_log_returns
-
-
 
     print_space()
 
@@ -201,5 +195,8 @@ if __name__ == "__main__":
 
     # Call plot_returns function and print the plot
     plot_returns = plot_returns(df, ticker, start, end)
-    plt.savefig('figures/' + ticker + "_returns_"+ start + '_to_' + end + '.png')
+    plt.savefig(ticker + "_returns_"+ start + '_to_' + end + '.png')
 
+
+
+    t.toc() #elapsed time
