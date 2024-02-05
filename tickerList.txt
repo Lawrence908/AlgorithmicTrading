@@ -1,0 +1,4 @@
+AAPL
+GLD
+TSLA
+NVDA

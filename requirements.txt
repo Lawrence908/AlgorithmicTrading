@@ -5,4 +5,5 @@ numpy
 matplotlib
 pytictoc
 pandas
+pandas_ta
 pandas_datareader
