@@ -6,4 +6,5 @@ matplotlib
 pytictoc
 pandas
 pandas_ta
+ta
 pandas_datareader

@@ -4,6 +4,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
 import pandas_ta as ta
+# import ta
 import pandas_datareader as pdr
 
 
