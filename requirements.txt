@@ -8,3 +8,4 @@ pandas
 pandas_ta
 ta
 pandas_datareader
+streamlit

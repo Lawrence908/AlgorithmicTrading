@@ -1,3 +1,4 @@
+SPY
 MSFT
 AAPL
 GOOG

@@ -32,6 +32,10 @@ if __name__ == "__main__":
         # print_space()
         # print("Analyzing Stock Ticker: ", ticker)
 
+        # if there is a '.' in one of the characters ticker str, replace it with a '-' to avoid file naming issues
+        if '.' in ticker:
+            ticker = ticker.replace('.','-')
+
         # # Start date = todays date offset by 6 months
         start_timestamp = pd.to_datetime('today') - pd.DateOffset(months=9)
         start:str = start_timestamp.strftime('%Y-%m-%d')
