@@ -29,16 +29,20 @@ if __name__ == "__main__":
 
     for count, ticker in enumerate(ticker_list):
 
+        if '.' in ticker:
+            ticker = ticker.replace('.', '-')
 
         # print_space()
         # print("Analyzing Stock Ticker: ", ticker)
 
         # # Start date = todays date offset by 6 months
-        start_timestamp = pd.to_datetime('today') - pd.DateOffset(months=12)
-        start:str = start_timestamp.strftime('%Y-%m-%d')
+        # start_timestamp = pd.to_datetime('today') - pd.DateOffset(months=60)
+        # start:str = start_timestamp.strftime('%Y-%m-%d')
         # End date = todays date
-        end_timestamp = pd.to_datetime('today')
-        end:str = end_timestamp.strftime('%Y-%m-%d')
+        # end_timestamp = pd.to_datetime('today')
+        # end:str = end_timestamp.strftime('%Y-%m-%d')
+        start = '2022-01-31'
+        end = '2024-01-31'
 
         # Download the stock data without it printing download status to the console
         df = yf.download(ticker, start, end, progress=False)
@@ -102,6 +106,14 @@ if __name__ == "__main__":
                     sell_prices.append(row.Open)
                     position = False
 
+        # Track the gain and loss of each buy and sell period to cumulatively calculate the return of the strategy
+        # Plot each gain and loss on the chart
+                    
+        # Calculate and print the returns of the strategy
+        # Later we should report this through streamlit or some other web framework with a nice UI showing best and worst performing stocks
+        print(ticker, "Gain/Loss:", "{:.2%}".format((pd.Series([(sell - buy) / buy for sell, buy in zip(sell_prices, buy_prices)]) + 1).prod() - 1))
+
+
         plt.figure(figsize=(20,10))
         plt.plot(df['Adj Close'], label=ticker, alpha=1)
         plt.plot(df['ma_20'], label='20 Day Moving Average', alpha=0.80)
@@ -110,17 +122,30 @@ if __name__ == "__main__":
         plt.scatter(df.loc[buy_dates].index, df.loc[buy_dates]['Adj Close'], marker= '^', color= 'g')
         plt.scatter(df.loc[sell_dates].index, df.loc[sell_dates]['Adj Close'], marker= 'v', color= 'r')
         for i in range(len(buy_dates)):
-            plt.text(buy_dates[i], df.loc[buy_dates[i]]['Adj Close'], "          $" + str(round(buy_prices[i], 2)), fontsize=12, color='g')
+            plt.text(buy_dates[i], df.loc[buy_dates[i]]['Adj Close'], "          $" + str(round(buy_prices[i], 2)), fontsize=10, color='g')
         for i in range(len(sell_dates)):
-            plt.text(sell_dates[i], df.loc[sell_dates[i]]['Adj Close'], "          $" + str(round(sell_prices[i], 2)), fontsize=12, color='r')
+            plt.text(sell_dates[i], df.loc[sell_dates[i]]['Adj Close'], "          $" + str(round(sell_prices[i], 2)), fontsize=10, color='r')
+        
+        # Another line on the chart will track the cumulative gain and loss of the strategy over the entire period
+        # I want to see how the strategy is performing over time, show the gain loss % at each trade on this line
+        # This will use a separate y axis on the right side of the chart
+        plt.twinx()
+        plt.plot(pd.Series([(sell - buy) / buy for sell, buy in zip(sell_prices, buy_prices)]).cumsum(), label='Cumulative Gain/Loss', color='b', alpha=0.5)
+        # plt.axhline(0, color='black', linestyle='--', alpha=0.5)
+
+
+        # There is a random piece of data in the 1970s that is causing the chart to be squished
+        # This line will remove that data from the chart
+        plt.xlim(pd.to_datetime(start), pd.to_datetime(end))
+
         plt.title('Bollinger Bands for ' + ticker + ' from ' + start + ' to ' + end)
+        # plt.xlabel('Date')
+        # plt.ylabel('Price')
         plt.legend()
 
         plt.savefig('figures/bollingerBands/' + str(count + 1) + " - " + ticker + end + '.png')
 
-        # Calculate and pting the returns of the strategy
-        # Later we should report this through streamlit or some other web framework with a nice UI showing best and worst performing stocks
-        print(ticker, "Gain/Loss:", "{:.2%}".format((pd.Series([(sell - buy) / buy for sell, buy in zip(sell_prices, buy_prices)]) + 1).prod() - 1))
+
 
         #Close the plot
         plt.close()
