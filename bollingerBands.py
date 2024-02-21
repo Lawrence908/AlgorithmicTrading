@@ -31,7 +31,6 @@ if __name__ == "__main__":
 
     for count, ticker in enumerate(ticker_list):
 
-
         # print_space()
         # print("Analyzing Stock Ticker: ", ticker)
 
