@@ -38,13 +38,9 @@ if __name__ == "__main__":
         if '.' in ticker:
             ticker = ticker.replace('.','-')
 
-        # # Start date = todays date offset by 6 months
-        start_timestamp = pd.to_datetime('today') - pd.DateOffset(months=6)
-        start:str = start_timestamp.strftime('%Y-%m-%d')
-        # End date = todays date
-        end_timestamp = pd.to_datetime('today')
-        end:str = end_timestamp.strftime('%Y-%m-%d')
-
+        # Backtesting during market downturn 2 year period
+        start = '2022-01-31'
+        end = '2024-01-31'
 
         # Download the stock data without it printing download status to the console
         df = yf.download(ticker, start, end, progress=False)
@@ -140,12 +136,12 @@ if __name__ == "__main__":
         # This line will remove that data from the chart
         plt.xlim(pd.to_datetime(start), pd.to_datetime(end))
 
-        plt.title('Bollinger Bands for ' + ticker + ' from ' + start + ' to ' + end)
+        plt.title('Bollinger Bands BACKTEST for ' + ticker + ' from ' + start + ' to ' + end)
         # plt.xlabel('Date')
         # plt.ylabel('Price')
         plt.legend()
 
-        plt.savefig('figures/bollingerBands/' + str(count + 1) + " - " + ticker + end + '.png')
+        plt.savefig('figures/backTest/bollingerBands/' + str(count + 1) + " - " + ticker + end + '.png')
 
         # # Plot the data using Streamlit
         # st.title('Bollinger Bands Analysis')
