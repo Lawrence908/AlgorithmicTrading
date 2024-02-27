@@ -167,10 +167,7 @@ class Backtest:
 # Get the data for SPY and plot over that time frame for comparison
 def plot_total_cum_profit(self, start='2022-01-31', end='2024-01-31'):
     plt.figure(figsize=(20, 10))
-
     plt.plot(self['Buy Date'], self['Total Cum Profit %'], drawstyle="steps-post", label='Total Cumulative Profit', alpha=1)
-    for i in range(len(self)):
-        plt.text(self['Buy Date'].iloc[i], self['Total Cum Profit %'].iloc[i], "      " + str(round(self['Profit %'].iloc[i], 2)) + "%", fontsize=10, color='black')
 
     spy_df = yf.download('SPY', start, end, progress=False)
     spy_df['Control'] = spy_df['Close'] - spy_df['Open']
@@ -184,7 +181,6 @@ def plot_total_cum_profit(self, start='2022-01-31', end='2024-01-31'):
     # plt.show()
 
     plt.close()
-
 
 
 
