@@ -6,6 +6,8 @@ import pandas as pd
 # import pandas_ta as ta
 import ta
 import pandas_datareader as pdr
+import streamlit as st
+
 
 
 
@@ -34,6 +36,10 @@ if __name__ == "__main__":
 
         # print_space()
         # print("Analyzing Stock Ticker: ", ticker)
+
+        # if there is a '.' in one of the characters ticker str, replace it with a '-' to avoid file naming issues
+        if '.' in ticker:
+            ticker = ticker.replace('.','-')
 
         # # Start date = todays date offset by 6 months
         # start_timestamp = pd.to_datetime('today') - pd.DateOffset(months=60)
@@ -146,6 +152,42 @@ if __name__ == "__main__":
         plt.savefig('figures/bollingerBands/' + str(count + 1) + " - " + ticker + end + '.png')
 
 
+        # Calculate and pting the returns of the strategy
+#         print(ticker, "Gain/Loss:", "{:.2%}".format((pd.Series([(sell - buy) / buy for sell, buy in zip(sell_prices, buy_prices)]) + 1).prod() - 1)) conflict
+
+
+
+
+        # # Plot the data using Streamlit
+        # st.title('Bollinger Bands Analysis')
+        # st.write('Ticker with the strongest buy signal: ', ticker_list[np.argmax(df['signal'] == 'Buy')])
+
+        # # Plot the stock data
+        # st.subheader('Stock Data')
+        # st.line_chart(df['Adj Close'])
+
+        # # Plot the moving averages and Bollinger Bands
+        # st.subheader('Moving Averages and Bollinger Bands')
+        # fig, ax = plt.subplots(figsize=(10, 6))
+        # ax.plot(df['Adj Close'], label=ticker)
+        # ax.plot(df['ma_20'], label='20 Day Moving Average')
+        # ax.plot(df['upper_bb'], label='Upper Bollinger Band')
+        # ax.plot(df['lower_bb'], label='Lower Bollinger Band')
+        # ax.scatter(df.loc[buy_dates].index, df.loc[buy_dates]['Adj Close'], marker='^', color='g')
+        # ax.scatter(df.loc[sell_dates].index, df.loc[sell_dates]['Adj Close'], marker='v', color='r')
+        # for i in range(len(buy_dates)):
+        #     ax.text(buy_dates[i], df.loc[buy_dates[i]]['Adj Close'], "          $" + str(round(buy_prices[i], 2)), fontsize=12, color='g')
+        # for i in range(len(sell_dates)):
+        #     ax.text(sell_dates[i], df.loc[sell_dates[i]]['Adj Close'], "          $" + str(round(sell_prices[i], 2)), fontsize=12, color='r')
+        # ax.set_title('Bollinger Bands for ' + ticker + ' from ' + start + ' to ' + end)
+        # ax.legend()
+        # st.pyplot(fig)
+
+        # # Calculate and display the returns of the strategy
+        # returns = (pd.Series([(sell - buy) / buy for sell, buy in zip(sell_prices, buy_prices)]) + 1).prod() - 1
+        # st.subheader('Strategy Returns')
+        # st.write(ticker, "Gain/Loss:", "{:.2%}".format(returns))
+   
 
         #Close the plot
         plt.close()
