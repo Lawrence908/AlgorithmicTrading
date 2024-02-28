@@ -39,7 +39,7 @@ if __name__ == "__main__":
             ticker = ticker.replace('.','-')
 
         # # Start date = todays date offset by 6 months
-        start_timestamp = pd.to_datetime('today') - pd.DateOffset(months=6)
+        start_timestamp = pd.to_datetime('today') - pd.DateOffset(months=12)
         start:str = start_timestamp.strftime('%Y-%m-%d')
         # End date = todays date
         end_timestamp = pd.to_datetime('today')
@@ -127,25 +127,13 @@ if __name__ == "__main__":
             plt.text(buy_dates[i], df.loc[buy_dates[i]]['Adj Close'], "          $" + str(round(buy_prices[i], 2)), fontsize=10, color='g')
         for i in range(len(sell_dates)):
             plt.text(sell_dates[i], df.loc[sell_dates[i]]['Adj Close'], "          $" + str(round(sell_prices[i], 2)), fontsize=10, color='r')
-        
-        # Another line on the chart will track the cumulative gain and loss of the strategy over the entire period
-        # I want to see how the strategy is performing over time, show the gain loss % at each trade on this line
-        # This will use a separate y axis on the right side of the chart
-        plt.twinx()
-        plt.plot(pd.Series([(sell - buy) / buy for sell, buy in zip(sell_prices, buy_prices)]).cumsum(), label='Cumulative Gain/Loss', color='b', alpha=0.5)
-        # plt.axhline(0, color='black', linestyle='--', alpha=0.5)
-
-
-        # There is a random piece of data in the 1970s that is causing the chart to be squished
-        # This line will remove that data from the chart
-        plt.xlim(pd.to_datetime(start), pd.to_datetime(end))
 
         plt.title('Bollinger Bands for ' + ticker + ' from ' + start + ' to ' + end)
         # plt.xlabel('Date')
         # plt.ylabel('Price')
         plt.legend()
 
-        plt.savefig('figures/bollingerBands/' + str(count + 1) + " - " + ticker + end + '.png')
+        plt.savefig('figures/bollingerBands/' + ticker + ' ' + end + '.png')
 
         # # Plot the data using Streamlit
         # st.title('Bollinger Bands Analysis')

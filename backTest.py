@@ -29,7 +29,7 @@ class Backtest:
             self.plot_chart()
             self.trades_df()
             self.plot_trades()
-            self.calc_gain_loss()
+            self.calc_buy_and_hold()
 
 
     def calc_indicators(self):
@@ -111,35 +111,7 @@ class Backtest:
         self.trades_df['Lower BB'] = self.df.loc[self.trades_df['Buy Date']]['lower_bb'].values
         self.trades_df['Vol'] = self.df.loc[self.trades_df['Buy Date']]['vol'].values
 
-    # def a function to calculate the gain and loss of the ticker from start to end date without using the buy and sell signals
-    def calc_gain_loss(self):
-        self.df['Control'] = self.df['Close'] - self.df['Open']
-        self.df['Control %'] = (self.df['Control'] / self.df['Open']) * 100
-        self.df['Control Cumulative %'] = self.df['Control %'].cumsum()
-
-    def trades_df(self):
-        self.trades_df = pd.DataFrame({'Buy Date': self.buy_arr.index, 'Buy Price': self.buy_arr.values, 'Sell Date': self.sell_arr.index, 'Sell Price': self.sell_arr.values})
-        # Add the ticker in the dataframe and place it next to the index
-        self.trades_df.insert(0, 'Ticker', self.symbol)
-        self.trades_df['Profit'] = self.trades_df['Sell Price'] - self.trades_df['Buy Price']
-        self.trades_df['Profit %'] = (self.trades_df['Profit'] / self.trades_df['Buy Price']) * 100
-        self.trades_df['Duration'] = self.trades_df['Sell Date'] - self.trades_df['Buy Date']
-        self.trades_df['Duration'] = self.trades_df['Duration'].dt.days
-        self.trades_df['Ticker Cum Profit'] = self.trades_df['Profit'].cumsum()
-        if len(self.trades_df['Buy Price']) > 0:
-            self.trades_df['Ticker Cum Profit %'] = (self.trades_df['Ticker Cum Profit'] / self.trades_df['Buy Price'].iloc[0]) * 100
-        else:
-            self.trades_df['Ticker Cum Profit %'] = 0
-        self.trades_df['Profitable'] = self.trades_df['Profit'] > 0
-        self.trades_df['Profitable'] = self.trades_df['Profitable'].replace({True: 'Yes', False: 'No'})
-        self.trades_df['Trade Number'] = range(1, len(self.trades_df) + 1)
-        self.trades_df['RSI'] = self.df.loc[self.trades_df['Buy Date']]['rsi'].values
-        self.trades_df['Upper BB'] = self.df.loc[self.trades_df['Buy Date']]['upper_bb'].values
-        self.trades_df['Lower BB'] = self.df.loc[self.trades_df['Buy Date']]['lower_bb'].values
-        self.trades_df['Vol'] = self.df.loc[self.trades_df['Buy Date']]['vol'].values
-
-    # def a function to calculate the gain and loss of the ticker from start to end date without using the buy and sell signals
-    def calc_gain_loss(self):
+    def calc_buy_and_hold(self):
         self.df['Control'] = self.df['Close'] - self.df['Open']
         self.df['Control %'] = (self.df['Control'] / self.df['Open']) * 100
         self.df['Control Cumulative %'] = self.df['Control %'].cumsum()

@@ -7,9 +7,9 @@ import ta
 import pandas_datareader as pdr
 import pytictoc as tt
 
-class Backtest:
+class Signals:
 
-    def __init__(self, symbol, start = pd.to_datetime('today') - pd.DateOffset(months=6), end = pd.to_datetime('today')):
+    def __init__(self, symbol, start = pd.to_datetime('today') - pd.DateOffset(months=12), end = pd.to_datetime('today')):
         self.symbol = symbol
         self.start = start
         self.end = end
@@ -27,9 +27,10 @@ class Backtest:
             self.cumulative_profit = (self.profit + 1).prod() - 1
             self.max_drawdown = self.cumulative_profit.min()
             self.plot_chart()
-            self.trades_df()
-            self.plot_trades()
-            self.calc_gain_loss()
+            # self.trades_df()
+            # self.plot_trades()
+            # self.calc_buy_and_hold()
+            self.recent_trade_df()
 
 
     def calc_indicators(self):
@@ -40,6 +41,7 @@ class Backtest:
         self.df['rsi'] = ta.momentum.rsi(self.df['Adj Close'], window=6)
         self.df.dropna(inplace=True)
 
+
     def generate_signals(self):
         conditions = [(self.df.rsi < 30) & (self.df['Adj Close'] < self.df.lower_bb),
                         (self.df.rsi > 70) & (self.df['Adj Close'] > self.df.upper_bb)]
@@ -47,6 +49,8 @@ class Backtest:
         self.df['signal'] = np.select(conditions, choices)
         self.df.signal = self.df['signal'].shift(1)
         self.df.dropna(inplace=True)
+        self.df['signal_strength'] = np.where(self.df['signal'] == 'Buy', self.df['Adj Close'] - self.df['lower_bb'], self.df['upper_bb'] - self.df['Adj Close'])
+
 
     def filter_signals_non_overlapping(self):
         position = False
@@ -57,6 +61,7 @@ class Backtest:
                 position = True
                 buy_dates.append(index)
 
+# Add in a stop loss condition
             if position and row.signal == 'Sell':
                 position = False
                 sell_dates.append(index)
@@ -64,12 +69,14 @@ class Backtest:
         self.buy_arr = self.df.loc[buy_dates].Open
         self.sell_arr = self.df.loc[sell_dates].Open
 
+
     def calc_profit(self):
         if len(self.buy_arr) == 0 or len(self.sell_arr) == 0:
             return np.array([])  # Return an empty array if buy_arr or sell_arr is empty
         if self.buy_arr.index[-1] > self.sell_arr.index[-1]:
             self.buy_arr = self.buy_arr[:-1]
         return (self.sell_arr.values - self.buy_arr.values)/self.buy_arr.values
+
 
     def plot_chart(self):
         plt.figure(figsize=(20, 10))
@@ -83,17 +90,26 @@ class Backtest:
             plt.text(self.buy_arr.index[i], self.df.loc[self.buy_arr.index[i]]['Adj Close'], "      $" + str(round(self.buy_arr.values[i], 2)), fontsize=10, color='g')
         for i in range(len(self.sell_arr)):
             plt.text(self.sell_arr.index[i], self.df.loc[self.sell_arr.index[i]]['Adj Close'], "      $" + str(round(self.sell_arr.values[i], 2)), fontsize=10, color='r')
-        plt.title(self.symbol + ' Backtest')
+        plt.title(self.symbol + ' Recent Trades ' + str(self.start.date()) + ' to ' + str(self.end.date()))
         plt.legend(loc='upper left')
-        plt.savefig('backTest/figures/bollingerBands/' + str(count + 1) + " - " + self.symbol + ' backtest.png')
+        plt.savefig('figures/trades/' + self.symbol + ' ' + str(self.end.date()) + '.png')
         # plt.show()
-
         plt.close()
 
+
+    def recent_trade_df(self):
+        self.recent_trade_df = pd.DataFrame({})
+        if len(self.buy_arr) > 0:
+            self.recent_trade_df = self.recent_trade_df._append({'Ticker': self.symbol, 'Trade': 'BUY', 'Date': self.buy_arr.index[-1], 'Price': self.buy_arr.values[-1],}, ignore_index=True)
+            self.recent_trade_df['Signal Strength'] = self.df.loc[self.recent_trade_df['Date']]['signal_strength'].values
+        if len(self.sell_arr) > 0:
+            self.recent_trade_df = self.recent_trade_df._append({'Ticker': self.symbol, 'Trade': 'SELL', 'Date': self.sell_arr.index[-1], 'Price': self.sell_arr.values[-1]}, ignore_index=True)
+            self.recent_trade_df['Signal Strength'] = self.df.loc[self.recent_trade_df['Date']]['signal_strength'].values
+
+
     def trades_df(self):
-        self.trades_df = pd.DataFrame({'Buy Date': self.buy_arr.index, 'Buy Price': self.buy_arr.values, 'Sell Date': self.sell_arr.index, 'Sell Price': self.sell_arr.values})
-        # Add the ticker in the dataframe and place it next to the index
-        self.trades_df.insert(0, 'Ticker', self.symbol)
+        self.trades_df = pd.DataFrame({'Ticker': self.symbol, 'Buy Date': self.buy_arr.index, 'Buy Price': self.buy_arr.values, 'Sell Date': self.sell_arr.index, 'Sell Price': self.sell_arr.values})
+        # self.trades_df.insert(0, 'Ticker', self.symbol)
         self.trades_df['Profit'] = self.trades_df['Sell Price'] - self.trades_df['Buy Price']
         self.trades_df['Profit %'] = (self.trades_df['Profit'] / self.trades_df['Buy Price']) * 100
         self.trades_df['Duration'] = self.trades_df['Sell Date'] - self.trades_df['Buy Date']
@@ -111,40 +127,12 @@ class Backtest:
         self.trades_df['Lower BB'] = self.df.loc[self.trades_df['Buy Date']]['lower_bb'].values
         self.trades_df['Vol'] = self.df.loc[self.trades_df['Buy Date']]['vol'].values
 
-    # def a function to calculate the gain and loss of the ticker from start to end date without using the buy and sell signals
-    def calc_gain_loss(self):
+    def calc_buy_and_hold(self):
         self.df['Control'] = self.df['Close'] - self.df['Open']
         self.df['Control %'] = (self.df['Control'] / self.df['Open']) * 100
         self.df['Control Cumulative %'] = self.df['Control %'].cumsum()
 
-    def trades_df(self):
-        self.trades_df = pd.DataFrame({'Buy Date': self.buy_arr.index, 'Buy Price': self.buy_arr.values, 'Sell Date': self.sell_arr.index, 'Sell Price': self.sell_arr.values})
-        # Add the ticker in the dataframe and place it next to the index
-        self.trades_df.insert(0, 'Ticker', self.symbol)
-        self.trades_df['Profit'] = self.trades_df['Sell Price'] - self.trades_df['Buy Price']
-        self.trades_df['Profit %'] = (self.trades_df['Profit'] / self.trades_df['Buy Price']) * 100
-        self.trades_df['Duration'] = self.trades_df['Sell Date'] - self.trades_df['Buy Date']
-        self.trades_df['Duration'] = self.trades_df['Duration'].dt.days
-        self.trades_df['Ticker Cum Profit'] = self.trades_df['Profit'].cumsum()
-        if len(self.trades_df['Buy Price']) > 0:
-            self.trades_df['Ticker Cum Profit %'] = (self.trades_df['Ticker Cum Profit'] / self.trades_df['Buy Price'].iloc[0]) * 100
-        else:
-            self.trades_df['Ticker Cum Profit %'] = 0
-        self.trades_df['Profitable'] = self.trades_df['Profit'] > 0
-        self.trades_df['Profitable'] = self.trades_df['Profitable'].replace({True: 'Yes', False: 'No'})
-        self.trades_df['Trade Number'] = range(1, len(self.trades_df) + 1)
-        self.trades_df['RSI'] = self.df.loc[self.trades_df['Buy Date']]['rsi'].values
-        self.trades_df['Upper BB'] = self.df.loc[self.trades_df['Buy Date']]['upper_bb'].values
-        self.trades_df['Lower BB'] = self.df.loc[self.trades_df['Buy Date']]['lower_bb'].values
-        self.trades_df['Vol'] = self.df.loc[self.trades_df['Buy Date']]['vol'].values
 
-    # def a function to calculate the gain and loss of the ticker from start to end date without using the buy and sell signals
-    def calc_gain_loss(self):
-        self.df['Control'] = self.df['Close'] - self.df['Open']
-        self.df['Control %'] = (self.df['Control'] / self.df['Open']) * 100
-        self.df['Control Cumulative %'] = self.df['Control %'].cumsum()
-
-    #Plot the trades cumulative profit% agaist the date of the trade
     def plot_trades(self):
         plt.figure(figsize=(20, 10))
         plt.plot(self.trades_df['Buy Date'], self.trades_df['Ticker Cum Profit %'], drawstyle="steps-post", label=self.symbol, alpha=1)
@@ -158,30 +146,9 @@ class Backtest:
 
         plt.title(self.symbol + ' Ticker Cum Profit %')
         plt.legend(loc='upper left')
-        plt.savefig('backTest/figures/profit/' + str(count + 1) + " - " + self.symbol + ' cumulative profit.png')
+        # plt.savefig('figures/profit/' + self.symbol + ' ' + str(self.end.date()) + '.png')
         # plt.show()
-
         plt.close()
-
-# Plot the total cumulative profit% against the date of the trade
-# Get the data for SPY and plot over that time frame for comparison
-def plot_total_cum_profit(self, start='2022-01-31', end='2024-01-31'):
-    plt.figure(figsize=(20, 10))
-    plt.plot(self['Buy Date'], self['Total Cum Profit %'], drawstyle="steps-post", label='Total Cumulative Profit', alpha=1)
-
-    spy_df = yf.download('SPY', start, end, progress=False)
-    spy_df['Control'] = spy_df['Close'] - spy_df['Open']
-    spy_df['Control %'] = (spy_df['Control'] / spy_df['Open']) * 100
-    spy_df['Control Cumulative %'] = spy_df['Control %'].cumsum()
-    plt.plot(spy_df['Control Cumulative %'], drawstyle="steps-post", label='SPY', alpha=0.8)
-
-    plt.title('Total Cumulative Profit % vs SPY')
-    plt.legend(loc='upper left')
-    plt.savefig('backTest/total_cum_profit.png')
-    # plt.show()
-
-    plt.close()
-
 
 
 if __name__ == "__main__":
@@ -199,44 +166,28 @@ if __name__ == "__main__":
     # Create a dataframe to store all trades for all tickers
     trades_df = pd.DataFrame()
 
-    cumulative_profit = 0
-    max_drawdown = 0
+    # Create a dataframe to store the most recent trade for all tickers
+    recent_trade_df = pd.DataFrame()
 
+    # Loop through the tickers and create a Signals object for each ticker
     for count, ticker in enumerate(ticker_list):
-        BT = Backtest(ticker)
-        trades_df = trades_df._append(BT.trades_df, ignore_index=True)
-        cumulative_profit += BT.profit.sum()
+        SIG = Signals(ticker)
+        # trades_df = trades_df._append(SIG.trades_df)
+        try:
+            recent_trade_df = recent_trade_df._append(SIG.recent_trade_df.iloc[-1])
+        except:
+            pass
+
+    # Sort recent_trades_df by Date descending and reset the index
+    recent_trade_df.sort_values(by='Date', ascending=False, inplace=True)
+    recent_trade_df.reset_index(drop=True, inplace=True)
 
 
-    # Reorder the trades_df by the 'Buy Date' column
-    trades_df = trades_df.sort_values(by='Buy Date')
+    # print(trades_df)
+    print(recent_trade_df)
 
-    #Reset the index after reordering the rows
-    trades_df.reset_index(drop=True, inplace=True)
-
-    # Recaulculate the cumulative profit % after reordering the rows
-    trades_df['Total Cum Profit %'] = trades_df['Profit %'].cumsum()
-
-    # Calculate the max drawdown
-    trades_df['Peak'] = trades_df['Total Cum Profit %'].cummax()
-    trades_df['Drawdown'] = trades_df['Total Cum Profit %'] - trades_df['Peak']
-    max_drawdown = trades_df['Drawdown'].min()
-
-    print(trades_df)
-    trades_df.to_csv('backTest/CSV/trades.csv', index=False)
-
-    print("Max Drawdown: ", max_drawdown, "%")
-    print("Cumulative Profit: ", cumulative_profit * 100, "%")
-    print("Win Rate: ", trades_df['Profitable'].value_counts(normalize=True)['Yes'] * 100, "%")
-
-    plot_total_cum_profit(trades_df)
-
-
-
-
-
-
-
+    #Save recent_trade_df to a csv file
+    recent_trade_df.to_csv('CSV/recent_trades.csv', index=False)
 
 
     t.toc() #elapsed time
