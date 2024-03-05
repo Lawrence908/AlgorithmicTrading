@@ -101,7 +101,7 @@ class Signals:
 			plt.text(self.sell_arr.index[i], self.sell_arr.values[i], "      $" + str(round(self.sell_arr.values[i], 2)), fontsize=10, color='r')
 		plt.title(self.symbol + ' Recent Trades ' + str(self.start.date()) + ' to ' + str(self.end.date()))
 		plt.legend(loc='upper left')
-		plt.savefig('figures/trades/' + self.symbol + ' ' + str(self.end.date()) + '.png')
+		plt.savefig('figures/trades/' + self.symbol + '.png')
 		# plt.show()
 		plt.close()
 
@@ -169,7 +169,7 @@ class Signals:
 
 		plt.title(self.symbol + ' Algo vs. SPY vs. buy & hold ' + str(self.start.date()) + ' to ' + str(self.end.date()))
 		plt.legend(loc='upper left')
-		plt.savefig('figures/profit/' + self.symbol + ' ' + str(self.end.date()) + '.png')
+		plt.savefig('figures/profit/' + self.symbol + '.png')
 		# plt.show()
 		plt.close()
 
