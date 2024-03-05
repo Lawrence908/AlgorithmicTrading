@@ -1,11 +1,29 @@
-nose
-sphinx
+ipykernel
 yfinance
-numpy
-matplotlib
-pytictoc
+
+yahoo_fin
+datetime
+feedparser
+# ftplib
+# io
+# json
 pandas
+requests
+requests_html
+
+finplot
+# opengl
+
+matplotlib
+
+
+
+numpy
+pytictoc
 pandas_ta
 ta
 pandas_datareader
 streamlit
+
+nose
+sphinx
