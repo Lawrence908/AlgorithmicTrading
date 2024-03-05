@@ -14,10 +14,6 @@ def print_space(char='*', num=50):
     print(char * num)
 
 if __name__ == "__main__":
-    # I want to read a list of tickers from a file, and store them in a list
-    # I will then use the list to download the stock data by iterating over the list
-    # I will use this list to plot the moving averages and indicate when a buy or sell signal is generated
-
     # This is to avoid the SettingWithCopyWarning in pandas
     pd.options.mode.copy_on_write = True 
 
@@ -28,8 +24,9 @@ if __name__ == "__main__":
 
     for count, ticker in enumerate(ticker_list):
 
-        # print_space()
-        # print("Analyzing Stock Ticker: ", ticker)
+        # if there is a '.' in one of the characters ticker str, replace it with a '-' to avoid file naming issues
+        if '.' in ticker:
+            ticker = ticker.replace('.','-')
 
         # Start date = todays date offset by 6 months
         start_timestamp = pd.to_datetime('today') - pd.DateOffset(months=48)
@@ -88,10 +85,7 @@ if __name__ == "__main__":
         df['Buy_Sell_150_200'] = np.where(df['SMA_150'] > df['SMA_200'], 1, 0)
         df['Buy_Sell_150_200'] = np.where(df['SMA_150'] < df['SMA_200'], -1, df['Buy_Sell_150_200'])
 
-        # Now I want to plot the moving averages and an entry based on the buy or sell signal
-        # I will use the matplotlib library to plot the data
-        # I want the Buy signal to be a green arrow pointing up
-        # I want the Sell signal to be a red arrow pointing down
+        # Create a plot of the stock data with the moving averages
         plt.figure(figsize=(20,10))
         plt.title('Moving Averages for ' + ticker + ' from ' + start + ' to ' + end)
         plt.plot(df['Adj Close'], label=ticker, alpha=1)
@@ -99,12 +93,14 @@ if __name__ == "__main__":
         plt.plot(df['SMA_100'], label='SMA_100', alpha=0.75)
         plt.plot(df['SMA_150'], label='SMA_150', alpha=0.70)
         plt.plot(df['SMA_200'], label='SMA_200', alpha=0.65)
-        plt.scatter(df[df['Buy_Sell_50_100'] == 1].index, df['SMA_50'][df['Buy_Sell_50_100'] == 1], marker='^', color='g')
-        plt.scatter(df[df['Buy_Sell_50_100'] == -1].index, df['SMA_50'][df['Buy_Sell_50_100'] == -1], marker='v', color='r')
-        plt.scatter(df[df['Buy_Sell_100_150'] == 1].index, df['SMA_100'][df['Buy_Sell_100_150'] == 1], marker='^', color='g')
-        plt.scatter(df[df['Buy_Sell_100_150'] == -1].index, df['SMA_100'][df['Buy_Sell_100_150'] == -1], marker='v', color='r')
-        plt.scatter(df[df['Buy_Sell_150_200'] == 1].index, df['SMA_150'][df['Buy_Sell_150_200'] == 1], marker='^', color='g')
-        plt.scatter(df[df['Buy_Sell_150_200'] == -1].index, df['SMA_150'][df['Buy_Sell_150_200'] == -1], marker='v', color='r')
+        plt.scatter(df[df['Buy_Sell_50_100'] == 1].index, df['SMA_50'][df['Buy_Sell_50_100'] == 1], marker='^', color='g', label='Buy Signal')
+        plt.scatter(df[df['Buy_Sell_50_100'] == -1].index, df['SMA_50'][df['Buy_Sell_50_100'] == -1], marker='v', color='r', label='Sell Signal')
+        plt.scatter(df[df['Buy_Sell_100_150'] == 1].index, df['SMA_100'][df['Buy_Sell_100_150'] == 1], marker='^', color='g', label='Buy Signal')
+        plt.scatter(df[df['Buy_Sell_100_150'] == -1].index, df['SMA_100'][df['Buy_Sell_100_150'] == -1], marker='v', color='r', label='Sell Signal')
+        plt.scatter(df[df['Buy_Sell_150_200'] == 1].index, df['SMA_150'][df['Buy_Sell_150_200'] == 1], marker='^', color='g', label='Buy Signal')
+        plt.scatter(df[df['Buy_Sell_150_200'] == -1].index, df['SMA_150'][df['Buy_Sell_150_200'] == -1], marker='v', color='r', label='Sell Signal')
+
+        
         plt.legend()
 
 
