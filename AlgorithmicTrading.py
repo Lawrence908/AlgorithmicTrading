@@ -123,6 +123,7 @@ class Ticker:
             self.Ticker = yf.Ticker(self.symbol)
             self.actions = self.Ticker.get_actions()
             self.info = self.Ticker.get_info()
+            self.financials = self.Ticker.get_financials()
             self.balance_sheet = self.Ticker.get_balance_sheet()
             self.income_statement = self.Ticker.get_income_stmt()
             self.cashflow_statement = self.Ticker.get_cashflow()
@@ -143,6 +144,8 @@ class Ticker:
             self.operating_efficiency = self.get_operating_efficiency()
             self.piotroski = self.get_piotroski()
             self.altman_z_score = self.get_altman_z_score()
+            self.ratios = self.get_ratios()
+    
     
     def __str__(self):
         return self.symbol
@@ -273,6 +276,25 @@ class Ticker:
             'Operating Efficiency Score': self.operating_efficiency_score
         }
         return operating_efficiency
+    
+    def get_financials(self) -> dict:
+        self.financials = self.Ticker.financials
+        return self.financials
+            
+    def get_ratios(self) -> dict:
+        self.ratios = {}
+        self.ratios['current_ratio'] = self.current_ratio
+        self.ratios['profit_earnings_ratio'] = self.info['trailingPE']
+        self.ratios['profit_price_ratio'] = self.info['forwardPE']
+        self.ratios['profit_sales_ratio'] = self.info['priceToSalesTrailing12Months']
+        self.ratios['profit_margin'] = self.info['profitMargins']
+        self.ratios['profit_book_ratio'] = self.info['priceToBook']
+        # self.ratios['profit_cash_ratio'] = self.info['priceToCashflow']
+        self.ratios['profit_dividend_ratio'] = self.info['dividendYield']
+        self.ratios['profit_earnings_growth'] = self.info['pegRatio']
+        self.ratios['profit_sales_growth'] = self.info['revenueGrowth']
+        return self.ratios
+
 
     def get_piotroski(self) -> dict:
         self.f_score = self.profitability['Profitability Score'] + self.leverage['Leverage Score'] + self.operating_efficiency['Operating Efficiency Score']
@@ -613,22 +635,25 @@ class TechnicalAnalysis:
         plt.show()
         plt.close()
 
-    def autocorrelation_plot(self):
-        autocorrelation_plot(self.df['Adj Close'])
-        plt.show()
-        plt.close()
-        
     def generate_correlation_matrix(self):
         self.df.dropna(inplace=True)
         self.correlation_matrix = self.df.corr()
         return self.correlation_matrix
 
-    def generate_prophet_forecast(self, frame= 'Adj Close' ,period=30):
-        self.df = self.df.reset_index()
-        self.df = self.df.rename(columns={'Date': 'ds', frame: 'y'})
+    def autocorrelation_plot(self):
+        self.autocorrelation_df = self.df[['Adj Close']].copy(deep=True)
+        self.autocorrelation_df.dropna(inplace=True)
+        autocorrelation_plot(self.autocorrelation_df)
+        plt.show()
+        plt.close()
+
+    def generate_prophet_forecast(self, frame= 'Adj Close' ,period=90):
+        self.prophet_df = self.df[[frame]].copy(deep=True)
+        self.prophet_df = self.prophet_df.reset_index()
+        self.prophet_df = self.prophet_df.rename(columns={'Date': 'ds', frame: 'y'})
         self.model = Prophet()
-        self.model.fit(self.df)
-        self.future = self.model.make_future_dataframe(periods=30)
+        self.model.fit(self.prophet_df)
+        self.future = self.model.make_future_dataframe(periods= period)
         self.forecast = self.model.predict(self.future)
         self.model.plot(self.forecast)
         self.model.plot_components(self.forecast)
@@ -693,12 +718,12 @@ class Positions:
 aapl = Ticker('AAPL')
 aapl_ta = TechnicalAnalysis(aapl)
 
-aapl_ta.generate_prophet_forecast(frame = 'Adj Close')
+aapl.ratios
+
+# aapl_ta.generate_prophet_forecast(frame = 'Adj Close', period=90)
 # aapl_ta.generate_prophet_forecast(frame = 'Open')
 
-# aapl_ta.generate_arima_forecast()
-
-aapl_ta.autocorrelation_plot()
+# aapl_ta.autocorrelation_plot()
 
 # aapl_ta.generate_correlation_matrix()
 

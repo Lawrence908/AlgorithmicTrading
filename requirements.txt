@@ -1,5 +1,10 @@
 ipykernel
 yfinance
+BeautifulSoup4
+scipy
+prophet
+statsmodels
+pmdarima
 
 yahoo_fin
 datetime
