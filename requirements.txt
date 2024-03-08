@@ -5,24 +5,15 @@ scipy
 prophet
 statsmodels
 pmdarima
-
+seaborn
 yahoo_fin
 datetime
 feedparser
-# ftplib
-# io
-# json
 pandas
 requests
 requests_html
-
 finplot
-# opengl
-
 matplotlib
-
-
-
 numpy
 pytictoc
 pandas_ta
