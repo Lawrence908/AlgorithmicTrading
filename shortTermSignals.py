@@ -139,8 +139,8 @@ if __name__ == "__main__":
         # Print the last 5 rows of the dataframe
         # print(df.tail())
         # print_space()
-        print(df)
-        st.dataframe(df)
+        # print(df)
+        # st.dataframe(df)
 
         ## SAAD STUFF
         #we must include all the stocks in the searching fun(can 
@@ -152,8 +152,13 @@ if __name__ == "__main__":
         st.sidebar.header("FILTER USING STOCK NAMES")
         stocks = st.sidebar.multiselect(
             "Select the stock: ",
-            options = df[""]
+            options = ("MSFT", "AAPL","GOOG","GOOGL","AMZN"), #automate this
+            default = "MSFT"
         )
+
+        # df_query = df.query("Stocks == @stocks")
+        st.dataframe(df)
+
         
 
         #Any other stuff in filer domain?
