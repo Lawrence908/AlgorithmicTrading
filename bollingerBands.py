@@ -29,10 +29,19 @@ if __name__ == "__main__":
 	with open(sys.argv[1], 'r') as f:
 		ticker_list = f.read().splitlines()
 
-	for count, ticker in enumerate(ticker_list):
 
-		# print_space()
-		# print("Analyzing Stock Ticker: ", ticker)
+	st.sidebar.header("FILTER USING STOCK NAMES")
+	stocks = st.sidebar.multiselect(
+		"Select the stock: ",
+		options = ticker_list, #automate this
+    )
+	for ticker in stocks:
+
+		print_space()
+		  #creating stock search filter
+        
+
+		print("Analyzing Stock Ticker: ", ticker)
 
 		# if there is a '.' in one of the characters ticker str, replace it with a '-' to avoid file naming issues
 		if '.' in ticker:
@@ -133,34 +142,36 @@ if __name__ == "__main__":
 		plt.savefig('figures/bollingerBands/' + ticker + ' ' + end + '.png')
 
 		# # Plot the data using Streamlit
-		# st.title('Bollinger Bands Analysis')
+		st.title('Bollinger Bands Analysis for '+ ticker)
 		# st.write('Ticker with the strongest buy signal: ', ticker_list[np.argmax(df['signal'] == 'Buy')])
 
 		# # Plot the stock data
-		# st.subheader('Stock Data')
-		# st.line_chart(df['Adj Close'])
+		st.subheader('Stock Data')
+		st.line_chart(df['Adj Close'])
 
 		# # Plot the moving averages and Bollinger Bands
-		# st.subheader('Moving Averages and Bollinger Bands')
-		# fig, ax = plt.subplots(figsize=(10, 6))
-		# ax.plot(df['Adj Close'], label=ticker)
-		# ax.plot(df['ma_20'], label='20 Day Moving Average')
-		# ax.plot(df['upper_bb'], label='Upper Bollinger Band')
-		# ax.plot(df['lower_bb'], label='Lower Bollinger Band')
-		# ax.scatter(df.loc[buy_dates].index, df.loc[buy_dates]['Adj Close'], marker='^', color='g')
-		# ax.scatter(df.loc[sell_dates].index, df.loc[sell_dates]['Adj Close'], marker='v', color='r')
-		# for i in range(len(buy_dates)):
-		#     ax.text(buy_dates[i], df.loc[buy_dates[i]]['Adj Close'], "          $" + str(round(buy_prices[i], 2)), fontsize=12, color='g')
-		# for i in range(len(sell_dates)):
-		#     ax.text(sell_dates[i], df.loc[sell_dates[i]]['Adj Close'], "          $" + str(round(sell_prices[i], 2)), fontsize=12, color='r')
-		# ax.set_title('Bollinger Bands for ' + ticker + ' from ' + start + ' to ' + end)
-		# ax.legend()
-		# st.pyplot(fig)
+		st.subheader('Moving Averages and Bollinger Bands for '+ ticker)
+		fig, ax = plt.subplots(figsize=(10, 6))
+		ax.plot(df['Adj Close'], label=ticker)
+		ax.plot(df['ma_20'], label='20 Day Moving Average')
+		ax.plot(df['upper_bb'], label='Upper Bollinger Band')
+		ax.plot(df['lower_bb'], label='Lower Bollinger Band')
+		ax.scatter(df.loc[buy_dates].index, df.loc[buy_dates]['Adj Close'], marker='^', color='g')
+		ax.scatter(df.loc[sell_dates].index, df.loc[sell_dates]['Adj Close'], marker='v', color='r')
+		for i in range(len(buy_dates)):
+		    ax.text(buy_dates[i], df.loc[buy_dates[i]]['Adj Close'], "          $" + str(round(buy_prices[i], 2)), fontsize=12, color='g')
+			
+		for i in range(len(sell_dates)):
+		    ax.text(sell_dates[i], df.loc[sell_dates[i]]['Adj Close'], "          $" + str(round(sell_prices[i], 2)), fontsize=12, color='r')
+		
+		ax.set_title('Bollinger Bands for ' + ticker + ' from ' + start + ' to ' + end)
+		ax.legend()
+		st.pyplot(fig)
 
-		# # Calculate and display the returns of the strategy
-		# returns = (pd.Series([(sell - buy) / buy for sell, buy in zip(sell_prices, buy_prices)]) + 1).prod() - 1
-		# st.subheader('Strategy Returns')
-		# st.write(ticker, "Gain/Loss:", "{:.2%}".format(returns))
+		# Calculate and display the returns of the strategy
+		returns = (pd.Series([(sell - buy) / buy for sell, buy in zip(sell_prices, buy_prices)]) + 1).prod() - 1
+		st.subheader('Strategy Returns')
+		st.write(ticker, "Gain/Loss:", "{:.2%}".format(returns))
    
 
 		#Close the plot
