@@ -7,12 +7,17 @@ import pandas_ta as ta
 # import ta
 import pandas_datareader as pdr
 
+#saad edit
+import plotly.express as px
+import streamlit as st
+
+st.set_page_config(page_title = "Short Term Signals", page_icon=":bar_chart", layout = "wide")
 
 
 # Create a function to print space between data output
 # Default is * characters and multiple of 50
-def print_space(char='*', num=50):
-    print(char * num)
+# def print_space(char='*', num=5):
+#     print(char * num)
 
 if __name__ == "__main__":
     # I want to read a list of tickers from a file, and store them in a list
@@ -95,20 +100,20 @@ if __name__ == "__main__":
         # I will use the matplotlib library to plot the data
         # I want the Buy signal to be a green arrow pointing up
         # I want the Sell signal to be a red arrow pointing down
-        plt.figure(figsize=(20,10))
-        plt.title('Moving Averages for ' + ticker + ' from ' + start + ' to ' + end)
-        plt.plot(df['Adj Close'], label=ticker, alpha=1)
-        plt.plot(df['SMA_5'], label='SMA_5', alpha=0.80)
-        plt.plot(df['SMA_10'], label='SMA_10', alpha=0.75)
-        plt.plot(df['SMA_20'], label='SMA_20', alpha=0.70)
-        plt.plot(df['SMA_50'], label='SMA_50', alpha=0.65)
-        plt.scatter(df[df['Buy_Sell_5_10'] == 1].index, df['SMA_5'][df['Buy_Sell_5_10'] == 1], marker='^', color='g')
-        plt.scatter(df[df['Buy_Sell_5_10'] == -1].index, df['SMA_5'][df['Buy_Sell_5_10'] == -1], marker='v', color='r')
-        plt.scatter(df[df['Buy_Sell_10_20'] == 1].index, df['SMA_10'][df['Buy_Sell_10_20'] == 1], marker='^', color='g')
-        plt.scatter(df[df['Buy_Sell_10_20'] == -1].index, df['SMA_10'][df['Buy_Sell_10_20'] == -1], marker='v', color='r')
-        plt.scatter(df[df['Buy_Sell_20_50'] == 1].index, df['SMA_20'][df['Buy_Sell_20_50'] == 1], marker='^', color='g')
-        plt.scatter(df[df['Buy_Sell_20_50'] == -1].index, df['SMA_20'][df['Buy_Sell_20_50'] == -1], marker='v', color='r')
-        plt.legend()
+        # plt.figure(figsize=(20,10))
+        # plt.title('Moving Averages for ' + ticker + ' from ' + start + ' to ' + end)
+        # plt.plot(df['Adj Close'], label=ticker, alpha=1)
+        # plt.plot(df['SMA_5'], label='SMA_5', alpha=0.80)
+        # plt.plot(df['SMA_10'], label='SMA_10', alpha=0.75)
+        # plt.plot(df['SMA_20'], label='SMA_20', alpha=0.70)
+        # plt.plot(df['SMA_50'], label='SMA_50', alpha=0.65)
+        # plt.scatter(df[df['Buy_Sell_5_10'] == 1].index, df['SMA_5'][df['Buy_Sell_5_10'] == 1], marker='^', color='g')
+        # plt.scatter(df[df['Buy_Sell_5_10'] == -1].index, df['SMA_5'][df['Buy_Sell_5_10'] == -1], marker='v', color='r')
+        # plt.scatter(df[df['Buy_Sell_10_20'] == 1].index, df['SMA_10'][df['Buy_Sell_10_20'] == 1], marker='^', color='g')
+        # plt.scatter(df[df['Buy_Sell_10_20'] == -1].index, df['SMA_10'][df['Buy_Sell_10_20'] == -1], marker='v', color='r')
+        # plt.scatter(df[df['Buy_Sell_20_50'] == 1].index, df['SMA_20'][df['Buy_Sell_20_50'] == 1], marker='^', color='g')
+        # plt.scatter(df[df['Buy_Sell_20_50'] == -1].index, df['SMA_20'][df['Buy_Sell_20_50'] == -1], marker='v', color='r')
+        # plt.legend()
 
 
 
@@ -123,16 +128,36 @@ if __name__ == "__main__":
         if all(df['entry'].iloc[-10:] == 3):
             print("Buy: ", ticker)
             # Save the plot to a file in the figures directory with the ticker name and the moving averages
-            plt.savefig('figures/shortTerm/' + str(count+ 1) + " - " + ticker + "_SMAs_"+ end + '.png')
+            # plt.savefig('figures/shortTerm/' + str(count+ 1) + " - " + ticker + "_SMAs_"+ end + '.png')
 
         # if the entry is -3 for the last 10 rows, then print a sell signal
         if all(df['entry'].iloc[-10:] == -3):
             print("Sell: ", ticker)
             # Save the plot to a file in the figures directory with the ticker name and the moving averages
-            plt.savefig('figures/shortTerm/' + str(count + 1) + " - " + ticker + "_SMAs_"+ end + '.png')
+            # plt.savefig('figures/shortTerm/' + str(count + 1) + " - " + ticker + "_SMAs_"+ end + '.png')
 
         # Print the last 5 rows of the dataframe
         # print(df.tail())
-            
+        # print_space()
+        print(df)
+        st.dataframe(df)
+
+        ## SAAD STUFF
+        #we must include all the stocks in the searching fun(can 
+        # we get to select those and get it's visuallizations)
+        # how do i get all the name sof the stocks?
+        #can i read from file?
+
+        #creating stock search filter
+        st.sidebar.header("FILTER USING STOCK NAMES")
+        stocks = st.sidebar.multiselect(
+            "Select the stock: ",
+            options = df[""]
+        )
+        
+
+        #Any other stuff in filer domain?
+
+        ##END OF SAAD StUFF
         #Close the plot
         plt.close()
