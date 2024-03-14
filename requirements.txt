@@ -20,6 +20,7 @@ pandas_ta
 ta
 pandas_datareader
 streamlit
+plotly
 
 nose
 sphinx

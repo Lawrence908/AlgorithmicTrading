@@ -6,6 +6,9 @@ import numpy as np
 import matplotlib.pyplot as plt
 import ta
 
+# This is to avoid the SettingWithCopyWarning in pandas
+pd.options.mode.copy_on_write = True 
+
 class Ticker:
     def __init__(self, symbol, start=pd.to_datetime('today') - pd.DateOffset(months=24), end=pd.to_datetime('today')):
         self.symbol = symbol
@@ -293,6 +296,8 @@ class Ticker:
 class TechnicalAnalysis:
     def __init__(self, ticker: Ticker):
         self.Ticker = ticker
+        self.start = self.Ticker.start
+        self.end = self.Ticker.end
         self.symbol = self.Ticker.symbol
         self.df = self.Ticker.df.copy(deep=True)
         self.df_ta = self.df.copy(deep=True)

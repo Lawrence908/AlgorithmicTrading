@@ -1,19 +1,27 @@
+import yfinance as yf
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import ta
 from tickerTA import TechnicalAnalysis
 
+# This is to avoid the SettingWithCopyWarning in pandas
+pd.options.mode.copy_on_write = True 
+
 class TradingStrategy1:
     def __init__(self, ta: TechnicalAnalysis):
         self.ta = ta
+        self.start = self.ta.start
+        self.end = self.ta.end
         self.Ticker = self.ta.Ticker
         self.symbol = self.ta.symbol
         self.df = self.ta.df_ta.copy(deep=True)
         self.generate_signal()
         self.generate_trades()
-        # self.generate_returns()
-        # self.generate_performance()
+        self.calc_stats()
+        self.plot_trades()
+        self.plot_profit()
+
 
     def __str__(self):
         return self.symbol
@@ -125,7 +133,7 @@ class TradingStrategy1:
         self.trades_df['Profitable'] = self.trades_df['Profitable'].replace({True: 'Yes', False: 'No'})
         return self.trades_df
 
-    def plot_chart(self):
+    def plot_trades(self):
         plt.figure(figsize=(20, 10))
         plt.plot(self.df['Adj Close'], label=self.symbol, alpha=1)
         plt.plot(self.df['BollingerMAvg'], label='Bollinger Moving Avg(20)', alpha=0.45)
@@ -139,45 +147,31 @@ class TradingStrategy1:
             plt.text(self.sell_arr.index[i], self.sell_arr.values[i], "      $" + str(round(self.sell_arr.values[i], 2)), fontsize=10, color='r')
         plt.title(self.symbol + ' Trading Strategy')
         plt.legend()
-        plt.show()
+        plt.savefig('tradingStrategy1/trades/' + self.symbol + '.png')
+        # plt.show()
         plt.close()
-    
-    # def generate_returns(self):
-    #     self.returns_df = self.trades_df.copy(deep=True)
-    #     self.returns_df['Returns'] = self.returns_df['Sell Price'] - self.returns_df['Buy Price']
-    #     self.returns_df['Returns %'] = (self.returns_df['Returns'] / self.returns_df['Buy Price']) * 100
-    #     self.returns_df['Returns %'] = self.returns_df['Returns %'].round(2)
-    #     self.returns_df['Returns %'] = self.returns_df['Returns %'].astype(str) + '%'
-    #     self.returns_df['Cumulative Returns'] = self.returns_df['Returns'].cumsum()
-    #     self.returns_df['Cumulative Returns %'] = (self.returns_df['Cumulative Returns'] / self.returns_df['Buy Price'].iloc[0]) * 100
-    #     self.returns_df['Cumulative Returns %'] = self.returns_df['Cumulative Returns %'].shift(1)
-    #     self.returns_df['Cumulative Returns %'].iloc[0] = 0
-    #     self.returns_df['Cumulative Returns %'] = self.returns_df['Cumulative Returns %'].fillna(0)
-    #     self.returns_df['Cumulative Returns %'] = self.returns_df['Cumulative Returns %'].round(2)
-    #     self.returns_df['Cumulative Returns %'] = self.returns_df['Cumulative Returns %'].astype(str) + '%'
-    #     self.returns_df['Trade Number'] = range(1, len(self.returns_df) + 1)
-    #     self.returns_df['Profitable'] = self.returns_df['Returns'] > 0
-    #     self.returns_df['Profitable'] = self.returns_df['Profitable'].replace({True: 'Yes', False: 'No'})
-    #     return self.returns_df
-    
-    # def generate_performance(self):
-    #     self.performance_df = self.returns_df.copy(deep=True)
-    #     self.performance_df['Winning Trades'] = self.performance_df['Profitable'].apply(lambda x: 1 if x == 'Yes' else 0)
-    #     self.performance_df['Losing Trades'] = self.performance_df['Profitable'].apply(lambda x: 1 if x == 'No' else 0)
-    #     self.performance_df['Winning Trades'] = self.performance_df['Winning Trades'].cumsum()
-    #     self.performance_df['Losing Trades'] = self.performance_df['Losing Trades'].cumsum()
-    #     self.performance_df['Total Trades'] = self.performance_df['Trade Number']
-    #     self.performance_df['Win Rate'] = (self.performance_df['Winning Trades'] / self.performance_df['Total Trades']) * 100
-    #     self.performance_df['Loss Rate'] = (self.performance_df['Losing Trades'] / self.performance_df['Total Trades']) * 100
-    #     self.performance_df['Win Rate'] = self.performance_df['Win Rate'].round(2)
-    #     self.performance_df['Loss Rate'] = self.performance_df['Loss Rate'].round(2)
-    #     self.performance_df['Win Rate'] = self.performance_df['Win Rate'].shift(1)
-    #     self.performance_df['Loss Rate'] = self.performance_df['Loss Rate'].shift(1)
-    #     self.performance_df['Win Rate'].iloc[0] = 0
-    #     self.performance_df['Loss Rate'].iloc[0] = 0
-    #     self.performance_df['Win Rate'] = self.performance_df['Win Rate'].fillna(0)
-    #     self.performance_df['Loss Rate'] = self.performance_df['Loss Rate'].fillna(0)
-    #     self.performance_df['Win Rate'] = self.performance_df['Win Rate'].astype(str) + '%'
-    #     self.performance_df['Loss Rate'] = self.performance_df['Loss Rate'].astype(str) + '%'
-    #     return self.performance_df
 
+    def plot_profit(self):
+        plt.figure(figsize=(20, 10))
+        plt.plot(self.trades_df['Buy Date'], self.trades_df['Ticker Cum Profit %'], drawstyle="steps-post", label=self.symbol, alpha=1)
+        for i in range(len(self.trades_df)):
+            plt.text(self.trades_df['Buy Date'].iloc[i], self.trades_df['Ticker Cum Profit %'].iloc[i], "      " + str(round(self.trades_df['Profit %'].iloc[i], 2)) + "%", fontsize=10, color='black')
+        spy_df = yf.download('SPY', self.start, self.end, progress=False)
+        spy_df['Control'] = spy_df['Close'] - spy_df['Open']
+        spy_df['Control %'] = (spy_df['Control'] / spy_df['Open']) * 100
+        spy_df['Control Cumulative %'] = spy_df['Control %'].cumsum()
+        plt.plot(spy_df['Control Cumulative %'], drawstyle="steps-post", label='SPY', alpha=0.8)
+        plt.title(self.symbol + ' Ticker Cum Profit %')
+        plt.legend(loc='upper left')
+        plt.savefig('tradingStrategy1/profit/' + self.symbol + '.png')
+        # plt.show()
+        plt.close()
+
+    def calc_stats(self):
+        self.winning_trades = self.trades_df['Profitable'].value_counts().get('Yes', 0)
+        self.losing_trades = self.trades_df['Profitable'].value_counts().get('No', 0)
+        self.win_rate = self.trades_df['Profitable'].value_counts(normalize=True).get('Yes', 0) * 100
+        self.loss_rate = self.trades_df['Profitable'].value_counts(normalize=True).get('No', 0) * 100
+        self.win_rate = round(self.win_rate, 2)
+        self.loss_rate = round(self.loss_rate, 2)
+        self.sharpe_ratio = self.trades_df['Profit %'].mean() / self.trades_df['Profit %'].std()
