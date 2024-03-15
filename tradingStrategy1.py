@@ -16,6 +16,7 @@ class TradingStrategy1:
         self.Ticker = self.ta.Ticker
         self.symbol = self.ta.symbol
         self.df = self.ta.df_ta.copy(deep=True)
+        self.all_signals_df = pd.DataFrame(columns=['Ticker', 'Buy/Sell', 'Date', 'Price'])
         self.generate_signal()
         self.generate_trades()
         self.calc_stats()
@@ -47,11 +48,13 @@ class TradingStrategy1:
                 self.buy_dates.append(index)
                 self.buy_prices.append(row['Open'])
                 self.position = True
+                self.all_signals_df = self.all_signals_df._append({'Ticker': self.symbol, 'Buy/Sell': 'Buy', 'Date': index, 'Price': row['Open']}, ignore_index=True)
 
             elif row['Signal'] == 'Sell' and self.position == True:
                 self.sell_dates.append(index)
                 self.sell_prices.append(row['Open'])
                 self.position = False
+                self.all_signals_df = self.all_signals_df._append({'Ticker': self.symbol, 'Buy/Sell': 'Sell', 'Date': index, 'Price': row['Open']}, ignore_index=True)
 
         self.buy_arr = self.df.loc[self.buy_dates].Open
         self.sell_arr = self.df.loc[self.sell_dates].Open
