@@ -48,14 +48,17 @@ class TradingStrategy1:
                 self.buy_dates.append(index)
                 self.buy_prices.append(row['Open'])
                 self.position = True
-                self.all_signals_df = self.all_signals_df._append({'Ticker': self.symbol, 'Buy/Sell': 'Buy', 'Date': index, 'Price': row['Open']}, ignore_index=True)
-
+                new_row1 = pd.Series({'Ticker': self.symbol, 'Buy/Sell': 'Buy', 'Date': index, 'Price': row['Open']})
+                new_row1_df = new_row1.to_frame().T
+                self.all_signals_df = self.all_signals_df._append(new_row1_df, ignore_index=True)
             elif row['Signal'] == 'Sell' and self.position == True:
                 self.sell_dates.append(index)
                 self.sell_prices.append(row['Open'])
                 self.position = False
-                self.all_signals_df = self.all_signals_df._append({'Ticker': self.symbol, 'Buy/Sell': 'Sell', 'Date': index, 'Price': row['Open']}, ignore_index=True)
-
+                new_row2 = pd.Series({'Ticker': self.symbol, 'Buy/Sell': 'Sell', 'Date': index, 'Price': row['Open']})
+                new_row2_df = new_row2.to_frame().T
+                self.all_signals_df = self.all_signals_df._append(new_row2_df, ignore_index=True)
+                
         self.buy_arr = self.df.loc[self.buy_dates].Open
         self.sell_arr = self.df.loc[self.sell_dates].Open
 

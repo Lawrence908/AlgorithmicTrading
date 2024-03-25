@@ -29,44 +29,55 @@ class Position:
     def sell(self, sell_date, sell_price):
         self.sell_date = sell_date
         self.sell_price = sell_price
-
-    def calculate_profit(self):
-        return (self.sell_price - self.buy_price) * self.shares
+    
+    # def add_shares(self, shares):
+    #     self.shares += shares
     
 
 class Positions:
-    def __init__(self, starting_capital=100000, trading_fee=3.66):
+    def __init__(self, capital=100000, trading_fee=3.66):
         self.positions = {}
         self.trade_history = []
         self.trade_history_df = pd.DataFrame()
-        self.starting_capital = starting_capital
-        self.capital = starting_capital
+        self.capital = capital
+        self.cash = capital
+        self.equity = capital
         self.trading_fee = trading_fee
         self.total_profit = 0
         self.sharpe_ratio = 0
         self.win_rate = 0
         self.max_drawdown = 0
         self.sortino_ratio = 0
+        self.profit_factor = 0
+        self.kelly_criterion = 0
+        self.expectancy = 0
+        self.r_squared = 0
+        self.max_draw_down = 0
+        self.max_run_up = 0
+        self.trading_costs = 0
 
     def buy(self, symbol, buy_date, buy_price, shares):
+
         if symbol in self.positions:
-            print(f'Position for {symbol} already exists')
+            # print(f'Position for {symbol} already exists')
             return
-        if (buy_price * shares) + self.trading_fee > self.capital:
-            print(f'Not enough capital to buy {shares} shares of {symbol}')
+        if (buy_price * shares) + self.trading_fee > self.cash:
+            # print(f'Not enough cash to buy {shares} shares of {symbol}')
             return
         position = Position(symbol, buy_date, buy_price, shares)
         self.positions[symbol] = position
-        self.capital -= (buy_price * shares) + self.trading_fee
-        print("Bought", shares, "shares of", symbol, "at", buy_price, "on", buy_date)
+        self.cash -= (buy_price * shares) + self.trading_fee
+        self.trading_costs += self.trading_fee
+        # print("Bought", shares, "shares of", symbol, "at", buy_price, "on", buy_date)
 
     def sell(self, symbol, sell_date, sell_price):
         if symbol in self.positions:
             position = self.positions[symbol]
             position.sell(sell_date, sell_price)
-            self.capital += (sell_price * position.shares) - self.trading_fee
-            profit = position.calculate_profit()
+            self.cash += (sell_price * position.shares) - self.trading_fee
+            profit = (sell_price * position.shares) - (position.buy_price * position.shares) - self.trading_fee
             self.total_profit += profit
+            self.trading_costs += self.trading_fee
             profit_percent = (profit / (position.buy_price * position.shares)) * 100
             self.trade_history.append({
                 'symbol': symbol,
@@ -79,10 +90,11 @@ class Positions:
                 'profit_percent': profit_percent
             })
             self.trade_history_df = pd.DataFrame(self.trade_history)
-            print("Sold", position.shares, "shares of", symbol, "at", sell_price, "on", sell_date)
+            # print("Sold", position.shares, "shares of", symbol, "at", sell_price, "on", sell_date)
             del self.positions[symbol]
         else:
-            print(f'No position for {symbol}')
+            # print(f'No position for {symbol}')
+            return
 
     def get_open_positions(self):
         open_positions = []
@@ -94,15 +106,67 @@ class Positions:
                 'shares': position.shares
             })
         return open_positions
+    
+    def calculate_kelly_criterion(self):
+        profitable_trades = [trade['profit'] for trade in self.trade_history if trade['profit'] > 0]
+        losing_trades = [trade['profit'] for trade in self.trade_history if trade['profit'] < 0]
+        if len(profitable_trades) > 0 and len(losing_trades) > 0:
+            win_rate = len(profitable_trades) / len(self.trade_history)
+            avg_win = sum(profitable_trades) / len(profitable_trades)
+            avg_loss = sum(losing_trades) / len(losing_trades)
+            kelly_criterion = (win_rate - ((1 - win_rate) / (avg_win / avg_loss))) * 100
+        else:
+            kelly_criterion = np.nan
+        return kelly_criterion
+    
+    def get_max_draw_down(self):
+        max_draw_down = 0
+        max_value = 0
+        for trade in self.trade_history:
+            buy_date = trade['buy_date']
+            sell_date = trade['sell_date']
+            buy_price = trade['buy_price']
+            sell_price = trade['sell_price']
+            shares = trade['shares']
+            symbol = trade['symbol']
+            position = Position(symbol, buy_date, buy_price, shares)
+            position.sell(sell_date, sell_price)
+            value = position.calculate_profit()
+            if value > max_value:
+                max_value = value
+            draw_down = (value - max_value) / max_value
+            if draw_down < max_draw_down:
+                max_draw_down = draw_down
+        return max_draw_down
+    
+    def get_max_run_up(self):
+        max_run_up = 0
+        max_value = 0
+        for trade in self.trade_history:
+            buy_date = trade['buy_date']
+            sell_date = trade['sell_date']
+            buy_price = trade['buy_price']
+            sell_price = trade['sell_price']
+            shares = trade['shares']
+            symbol = trade['symbol']
+            position = Position(symbol, buy_date, buy_price, shares)
+            position.sell(sell_date, sell_price)
+            value = position.calculate_profit()
+            if value < max_value:
+                max_value = value
+            run_up = (value - max_value) / max_value
+            if run_up > max_run_up:
+                max_run_up = run_up
+        return max_run_up
 
     def cancel_open_positions(self):
         for symbol in list(self.positions.keys()):
             position = self.positions[symbol]
-            self.capital += (position.buy_price * position.shares) - self.trading_fee
+            self.cash += (position.buy_price * position.shares) - self.trading_fee
             del self.positions[symbol]
 
     def get_daily_return(self):
-        return (self.capital - self.starting_capital) / self.starting_capital
+        return (self.cash - self.capital) / self.capital
     
     def get_share_value(self, symbol):
         if symbol in self.positions:
@@ -115,7 +179,7 @@ class Positions:
         return self.total_profit / len(self.trade_history)
     
     def get_avg_profit_percent(self):
-        return (self.total_profit / self.starting_capital) * 100
+        return (self.total_profit / self.capital) * 100
     
     def plot_profit_frequency(self):
         profits = [trade['profit'] for trade in self.trade_history]
@@ -176,10 +240,10 @@ class Positions:
         plt.show()
 
     def plot_capital_time(self):
-        capital = [self.starting_capital + trade['profit'] for trade in self.trade_history]
+        cash = [self.capital + trade['profit'] for trade in self.trade_history]
         dates = [trade['sell_date'] for trade in self.trade_history]
         plt.figure(figsize=(20, 10))
-        plt.plot(dates, capital)
+        plt.plot(dates, cash)
         plt.title('Capital Over Time')
         plt.xlabel('Date')
         plt.ylabel('Capital')
@@ -198,7 +262,7 @@ class Positions:
         plt.ylabel('Value')
         plt.show()
     
-    def calculate_sharpe_ratio(self, risk_free_rate=0.02):
+    def calculate_sharpe_ratio(self, risk_free_rate=0.0365660):
         all_returns = []
         for trade in self.trade_history:
             buy_date = trade['buy_date']
@@ -308,7 +372,7 @@ class Positions:
     
     def calculate_metrics(self):
         self.sharpe_ratio = self.calculate_sharpe_ratio()
-        self.profit_pct = ((self.capital - self.starting_capital) / self.starting_capital * 100).__round__(2)
+        self.profit_pct = ((self.cash - self.capital) / self.capital * 100).__round__(2)
         self.win_rate = self.calculate_win_rate()
         self.max_drawdown = self.calculate_max_drawdown()
         self.sortino_ratio = self.calculate_sortino_ratio()
@@ -319,7 +383,7 @@ class Positions:
     def get_metrics(self):
         return {
             'Sharpe Ratio': self.sharpe_ratio,
-            'Profit Percent':  ((self.capital - self.starting_capital) / self.starting_capital * 100).__round__(2),
+            'Profit Percent':  ((self.cash - self.capital) / self.capital * 100).__round__(2),
             'Win Rate': self.win_rate,
             'Max Drawdown': self.max_drawdown,
             'Sortino Ratio': self.sortino_ratio,
@@ -332,4 +396,4 @@ class Positions:
         return 'Total Profit: $', self.total_profit.__round__(2)
     
     def get_total_profit_percent(self):
-        return 'Total Profit : ', ((self.capital - self.starting_capital) / self.starting_capital * 100).__round__(2), '%'
+        return 'Total Profit : ', ((self.cash - self.capital) / self.capital * 100).__round__(2), '%'
