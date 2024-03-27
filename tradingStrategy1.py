@@ -176,8 +176,31 @@ class TradingStrategy1:
     def calc_stats(self):
         self.winning_trades = self.trades_df['Profitable'].value_counts().get('Yes', 0)
         self.losing_trades = self.trades_df['Profitable'].value_counts().get('No', 0)
+        self.total_trades = self.winning_trades + self.losing_trades
         self.win_rate = self.trades_df['Profitable'].value_counts(normalize=True).get('Yes', 0) * 100
         self.loss_rate = self.trades_df['Profitable'].value_counts(normalize=True).get('No', 0) * 100
         self.win_rate = round(self.win_rate, 2)
         self.loss_rate = round(self.loss_rate, 2)
         self.sharpe_ratio = self.trades_df['Profit %'].mean() / self.trades_df['Profit %'].std()
+        self.sharpe_ratio = round(self.sharpe_ratio, 2)
+        self.avg_profit = self.trades_df['Profit %'].mean()
+        self.avg_profit = round(self.avg_profit, 2)
+        self.avg_duration = self.trades_df['Duration'].mean()
+        self.avg_duration = round(self.avg_duration, 2)
+        self.total_profit = self.trades_df['Profit'].sum()
+        self.total_profit = round(self.total_profit, 2)
+        self.total_profit_percent = self.trades_df['Profit %'].sum()
+        self.total_profit_percent = round(self.total_profit_percent, 2)
+
+        self.stats = {
+            'Total Trades': self.total_trades,
+            'Winning Trades': self.winning_trades,
+            'Losing Trades': self.losing_trades,
+            'Win Rate %': self.win_rate,
+            'Loss Rate %': self.loss_rate,
+            'Sharpe Ratio': self.sharpe_ratio,
+            'Average Profit %': self.avg_profit,
+            'Average Duration': self.avg_duration,
+            'Total Profit': self.total_profit,
+            'Total Profit %': self.total_profit_percent
+        }
