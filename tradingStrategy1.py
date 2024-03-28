@@ -204,3 +204,13 @@ class TradingStrategy1:
             'Total Profit': self.total_profit,
             'Total Profit %': self.total_profit_percent
         }
+        
+        return self.stats
+    
+    def get_buytable(self):
+        self.buytable = self.trades_df[['Buy P/E Ratio', 'Buy Fwd P/E Ratio', 'Buy P/B Ratio', 'Buy RSI', 'Buy Upper BB', 'Buy Bollinger %b', 'Buy Lower BB', 'Buy vol', 'Buy Z Score', 'Buy MACD', 'Buy VWAP', 'Buy OBV', 'Buy Stoch', 'Buy Awesome Oscillator', 'Buy Ultimate Oscillator', 'Buy TSI', 'Buy Acum/Dist', 'Profitable']]
+        return self.buytable
+
+    def get_selltable(self):
+        self.selltable = self.trades_df[['Sell P/E Ratio', 'Sell Fwd P/E Ratio', 'Sell P/B Ratio', 'Sell RSI', 'Sell Upper BB', 'Sell Bollinger %b', 'Sell Lower BB', 'Sell vol', 'Sell Z Score', 'Sell MACD', 'Sell VWAP', 'Sell OBV', 'Sell Stoch', 'Sell Awesome Oscillator', 'Sell Ultimate Oscillator', 'Sell TSI', 'Sell Acum/Dist', 'Profitable']]
+        return self.selltable

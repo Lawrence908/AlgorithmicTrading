@@ -1,12 +1,8 @@
+jupyter
 ipykernel
 yfinance
 BeautifulSoup4
-scipy
-prophet
 statsmodels
-pmdarima
-seaborn
-yahoo_fin
 datetime
 feedparser
 pandas
@@ -21,6 +17,7 @@ ta
 pandas_datareader
 streamlit
 plotly
+torch
+scikit-learn
 
-nose
-sphinx
+seaborn
