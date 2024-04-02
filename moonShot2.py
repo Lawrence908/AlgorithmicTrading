@@ -132,8 +132,8 @@ class MoonShot2:
     def train_and_tune(self):
         # We define the hyperparameters of the neural network
         input_size = self.buy_x_train.shape[1]
-        # hidden_size = 56
-        hidden_size = 64
+        hidden_size = 56
+        # hidden_size = 64
         output_size = 1
         # learning_rate = 0.00001
         learning_rate = 0.001
