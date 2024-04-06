@@ -16,7 +16,6 @@ pandas_ta
 ta
 pandas_datareader
 streamlit
-plotly
 torch
 scikit-learn
 

@@ -3,7 +3,6 @@ import numpy as np
 import matplotlib.pyplot as plt
 import pandas_datareader as pdr
 import pytictoc as tt
-import plotly
 from tickers500 import tickers500
 from tickerTA import Ticker
 from tickerTA import TechnicalAnalysis
