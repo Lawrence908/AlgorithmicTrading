@@ -18,5 +18,6 @@ pandas_datareader
 streamlit
 torch
 scikit-learn
-
 seaborn
+prophet
+plotly
