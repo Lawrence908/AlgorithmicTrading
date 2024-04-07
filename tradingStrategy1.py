@@ -153,8 +153,8 @@ class TradingStrategy1:
             plt.text(self.sell_arr.index[i], self.sell_arr.values[i], "      $" + str(round(self.sell_arr.values[i], 2)), fontsize=10, color='r')
         plt.title(self.symbol + ' Trading Strategy')
         plt.legend()
-        plt.savefig('tradingStrategy1/trades/' + self.symbol + '.png')
-        # plt.show()
+        # plt.savefig('tradingStrategy1/trades/' + self.symbol + '.png')
+        plt.show()
         plt.close()
 
     def plot_profit(self):
@@ -169,8 +169,8 @@ class TradingStrategy1:
         plt.plot(spy_df['Control Cumulative %'], drawstyle="steps-post", label='SPY', alpha=0.8)
         plt.title(self.symbol + ' Ticker Cum Profit %')
         plt.legend(loc='upper left')
-        plt.savefig('tradingStrategy1/profit/' + self.symbol + '.png')
-        # plt.show()
+        # plt.savefig('tradingStrategy1/profit/' + self.symbol + '.png')
+        plt.show()
         plt.close()
 
     def calc_stats(self):
