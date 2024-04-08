@@ -155,7 +155,8 @@ class TradingStrategy1:
         plt.legend()
         # plt.savefig('tradingStrategy1/trades/' + self.symbol + '.png')
         plt.show()
-        plt.close()
+        # plt.close()
+        return plt
 
     def plot_profit(self):
         plt.figure(figsize=(20, 10))
@@ -171,7 +172,8 @@ class TradingStrategy1:
         plt.legend(loc='upper left')
         # plt.savefig('tradingStrategy1/profit/' + self.symbol + '.png')
         plt.show()
-        plt.close()
+        # plt.close()
+        return plt
 
     def calc_stats(self):
         self.winning_trades = self.trades_df['Profitable'].value_counts().get('Yes', 0)
