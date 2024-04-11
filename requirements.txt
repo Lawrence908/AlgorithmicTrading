@@ -19,5 +19,5 @@ streamlit
 torch
 scikit-learn
 seaborn
-prophet
 plotly
+prophet

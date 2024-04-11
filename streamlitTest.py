@@ -1,17 +1,8 @@
-'''
-This streamlit file does technical analysis of a selected stock which includes
-MACD, MACD signal, short terma nd long term moving averages
-This file gets symbols from tickers500 and methods from TickerTA and auto correlation plot
-NOTE: autcorrelation plot is'nt working 
-
-'''
-
-
-
 import streamlit as st
 import pandas as pd
 from tickerTA import Ticker, TechnicalAnalysis
 from tradingStrategy1 import TradingStrategy1
+from recommendations import Recommendations
 from tickers500 import tickers500
 
 symbols = tickers500
@@ -75,7 +66,6 @@ st.line_chart(tech_analysis.df_ta['Adj Close'])
 
 #technical analysis
 st.subheader('Technical Analysis')
-tech_analysis = TechnicalAnalysis(ticker)
 st.write("Bollinger Bands:")
 st.write("The Bollinger Bands are a volatility indicator that consists of a simple moving average and two standard deviations plotted above and below the moving average.")
 st.write("The Bollinger Band High is the upper band, and the Bollinger Band Low is the lower band.")
