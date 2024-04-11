@@ -21,7 +21,7 @@ class Recommendations:
     def __init__(self, start = pd.to_datetime('today') - pd.DateOffset(months=12), end = pd.to_datetime('today')):
         self.start = start
         self.end = end
-        self.tickers500 = tickers500[1:10]
+        self.tickers500 = tickers500[0:500]
         self.get_stock_data()
         self.current_recommendations()
 
@@ -36,7 +36,7 @@ class Recommendations:
             tradingS = TradingStrategy1(techA)
             self.signals_df = self.signals_df._append(tradingS.all_signals_df)
             self.tradingstrategy1_df = self.tradingstrategy1_df._append(tradingS.trades_df)
-            self.buytable_df = tradingS.get_buytable()._append(self.buytable_df)
+            self.buytable_df = self.buytable_df._append(tradingS.buytable_df)
         self.signals_df = self.signals_df.sort_values(by='Date')
 
 
@@ -44,17 +44,14 @@ class Recommendations:
         self.buy_recommendations_df = pd.DataFrame()
         self.sell_recommendations_df = pd.DataFrame()
         for _, row in self.signals_df.iterrows():
-            try:
-                if row['Signal'] == 'Buy':
-                    self.buy_recommendations_df = self.buy_recommendations_df.append(row)
-                elif row['Signal'] == 'Sell':
-                    self.sell_recommendations_df = self.sell_recommendations_df.append(row)
-            except KeyError:
-                print(f"Unable to find 'Signal' in the row. Please check the structure of self.signals_df and try again.")        
+            if row['Signal'] == 'Buy':
+                self.buy_recommendations_df = self.buy_recommendations_df.append(row)
+            elif row['Signal'] == 'Sell':
+                self.sell_recommendations_df = self.sell_recommendations_df.append(row)
         self.buy_recommendations_df = self.buy_recommendations_df.sort_values(by='Date')
-        # self.buy_recommendations_df = self.buy_recommendations_df.reset_index(drop=True)
+        self.buy_recommendations_df = self.buy_recommendations_df.reset_index(drop=True)
         self.sell_recommendations_df = self.sell_recommendations_df.sort_values(by='Date')
-        # self.sell_recommendations_df = self.sell_recommendations_df.reset_index(drop=True)
+        self.sell_recommendations_df = self.sell_recommendations_df.reset_index(drop=True)
 
     def print_buy_recommendations(self):
         print('Buy Recommendations')

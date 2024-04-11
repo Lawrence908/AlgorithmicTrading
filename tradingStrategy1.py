@@ -21,6 +21,8 @@ class TradingStrategy1:
         self.generate_signal()
         self.generate_trades()
         self.calc_stats()
+        self.get_buytable()
+        self.get_selltable()
         self.save_plot_trades(self.directory_name)
         self.save_plot_profit(self.directory_name)
 
@@ -241,9 +243,9 @@ class TradingStrategy1:
         return self.stats
     
     def get_buytable(self):
-        self.buytable = self.trades_df[['Buy P/E Ratio', 'Buy Fwd P/E Ratio', 'Buy P/B Ratio', 'Buy RSI', 'Buy Upper BB', 'Buy Bollinger %b', 'Buy Lower BB', 'Buy vol', 'Buy Z Score', 'Buy MACD', 'Buy VWAP', 'Buy OBV', 'Buy Stoch', 'Buy Awesome Oscillator', 'Buy Ultimate Oscillator', 'Buy TSI', 'Buy Acum/Dist', 'Profitable']]
-        return self.buytable
+        self.buytable_df = self.trades_df[['Buy P/E Ratio', 'Buy Fwd P/E Ratio', 'Buy P/B Ratio', 'Buy RSI', 'Buy Upper BB', 'Buy Bollinger %b', 'Buy Lower BB', 'Buy vol', 'Buy Z Score', 'Buy MACD', 'Buy VWAP', 'Buy OBV', 'Buy Stoch', 'Buy Awesome Oscillator', 'Buy Ultimate Oscillator', 'Buy TSI', 'Buy Acum/Dist', 'Profitable']]
+        return self.buytable_df
 
     def get_selltable(self):
-        self.selltable = self.trades_df[['Sell P/E Ratio', 'Sell Fwd P/E Ratio', 'Sell P/B Ratio', 'Sell RSI', 'Sell Upper BB', 'Sell Bollinger %b', 'Sell Lower BB', 'Sell vol', 'Sell Z Score', 'Sell MACD', 'Sell VWAP', 'Sell OBV', 'Sell Stoch', 'Sell Awesome Oscillator', 'Sell Ultimate Oscillator', 'Sell TSI', 'Sell Acum/Dist', 'Profitable']]
-        return self.selltable
+        self.selltable_df = self.trades_df[['Sell P/E Ratio', 'Sell Fwd P/E Ratio', 'Sell P/B Ratio', 'Sell RSI', 'Sell Upper BB', 'Sell Bollinger %b', 'Sell Lower BB', 'Sell vol', 'Sell Z Score', 'Sell MACD', 'Sell VWAP', 'Sell OBV', 'Sell Stoch', 'Sell Awesome Oscillator', 'Sell Ultimate Oscillator', 'Sell TSI', 'Sell Acum/Dist', 'Profitable']]
+        return self.selltable_df
