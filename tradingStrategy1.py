@@ -9,7 +9,7 @@ from tickerTA import TechnicalAnalysis
 pd.options.mode.copy_on_write = True 
 
 class TradingStrategy1:
-    def __init__(self, ta: TechnicalAnalysis):
+    def __init__(self, ta: TechnicalAnalysis, directory_name = 'tradingStrategy1'):
         self.ta = ta
         self.start = self.ta.start
         self.end = self.ta.end
@@ -17,11 +17,14 @@ class TradingStrategy1:
         self.symbol = self.ta.symbol
         self.df = self.ta.df_ta.copy(deep=True)
         self.all_signals_df = pd.DataFrame(columns=['Ticker', 'Buy/Sell', 'Date', 'Price'])
+        self.directory_name = directory_name
         self.generate_signal()
         self.generate_trades()
         self.calc_stats()
-        self.plot_trades()
-        self.plot_profit()
+        self.get_buytable()
+        self.get_selltable()
+        self.save_plot_trades(self.directory_name)
+        self.save_plot_profit(self.directory_name)
 
 
     def __str__(self):
@@ -153,9 +156,26 @@ class TradingStrategy1:
             plt.text(self.sell_arr.index[i], self.sell_arr.values[i], "      $" + str(round(self.sell_arr.values[i], 2)), fontsize=10, color='r')
         plt.title(self.symbol + ' Trading Strategy')
         plt.legend()
-        plt.savefig('tradingStrategy1/trades/' + self.symbol + '.png')
-        # plt.show()
+        plt.show()
+        return plt
+    
+    def save_plot_trades(self, directory_name = 'tradingStrategy1'):
+        plt.figure(figsize=(20, 10))
+        plt.plot(self.df['Adj Close'], label=self.symbol, alpha=1)
+        plt.plot(self.df['BollingerMAvg'], label='Bollinger Moving Avg(20)', alpha=0.45)
+        plt.plot(self.df['BollingerBandHigh'], label='Bollinger Band High', alpha=0.55)
+        plt.plot(self.df['BollingerBandLow'], label='Bollinger Band Low', alpha=0.55)
+        plt.scatter(self.buy_arr.index, self.buy_arr.values, label='Buy Signal', marker='^', color='green')
+        plt.scatter(self.sell_arr.index, self.sell_arr.values, label='Sell Signal', marker='v', color='red')
+        for i in range(len(self.buy_arr)):
+            plt.text(self.buy_arr.index[i], self.buy_arr.values[i], "      $" + str(round(self.buy_arr.values[i], 2)), fontsize=10, color='g')
+        for i in range(len(self.sell_arr)):
+            plt.text(self.sell_arr.index[i], self.sell_arr.values[i], "      $" + str(round(self.sell_arr.values[i], 2)), fontsize=10, color='r')
+        plt.title(self.symbol + ' Trading Strategy')
+        plt.legend()
+        plt.savefig(directory_name + '/trades/' + self.symbol + '.png')
         plt.close()
+        return plt
 
     def plot_profit(self):
         plt.figure(figsize=(20, 10))
@@ -169,9 +189,24 @@ class TradingStrategy1:
         plt.plot(spy_df['Control Cumulative %'], drawstyle="steps-post", label='SPY', alpha=0.8)
         plt.title(self.symbol + ' Ticker Cum Profit %')
         plt.legend(loc='upper left')
-        plt.savefig('tradingStrategy1/profit/' + self.symbol + '.png')
-        # plt.show()
+        plt.show()
+        return plt
+    
+    def save_plot_profit(self, directory_name):
+        plt.figure(figsize=(20, 10))
+        plt.plot(self.trades_df['Buy Date'], self.trades_df['Ticker Cum Profit %'], drawstyle="steps-post", label=self.symbol, alpha=1)
+        for i in range(len(self.trades_df)):
+            plt.text(self.trades_df['Buy Date'].iloc[i], self.trades_df['Ticker Cum Profit %'].iloc[i], "      " + str(round(self.trades_df['Profit %'].iloc[i], 2)) + "%", fontsize=10, color='black')
+        spy_df = yf.download('SPY', self.start, self.end, progress=False)
+        spy_df['Control'] = spy_df['Close'] - spy_df['Open']
+        spy_df['Control %'] = (spy_df['Control'] / spy_df['Open']) * 100
+        spy_df['Control Cumulative %'] = spy_df['Control %'].cumsum()
+        plt.plot(spy_df['Control Cumulative %'], drawstyle="steps-post", label='SPY', alpha=0.8)
+        plt.title(self.symbol + ' Ticker Cum Profit %')
+        plt.legend(loc='upper left')
+        plt.savefig(directory_name + '/profit/' + self.symbol + '.png')
         plt.close()
+        return plt
 
     def calc_stats(self):
         self.winning_trades = self.trades_df['Profitable'].value_counts().get('Yes', 0)
@@ -208,9 +243,9 @@ class TradingStrategy1:
         return self.stats
     
     def get_buytable(self):
-        self.buytable = self.trades_df[['Buy P/E Ratio', 'Buy Fwd P/E Ratio', 'Buy P/B Ratio', 'Buy RSI', 'Buy Upper BB', 'Buy Bollinger %b', 'Buy Lower BB', 'Buy vol', 'Buy Z Score', 'Buy MACD', 'Buy VWAP', 'Buy OBV', 'Buy Stoch', 'Buy Awesome Oscillator', 'Buy Ultimate Oscillator', 'Buy TSI', 'Buy Acum/Dist', 'Profitable']]
-        return self.buytable
+        self.buytable_df = self.trades_df[['Buy P/E Ratio', 'Buy Fwd P/E Ratio', 'Buy P/B Ratio', 'Buy RSI', 'Buy Upper BB', 'Buy Bollinger %b', 'Buy Lower BB', 'Buy vol', 'Buy Z Score', 'Buy MACD', 'Buy VWAP', 'Buy OBV', 'Buy Stoch', 'Buy Awesome Oscillator', 'Buy Ultimate Oscillator', 'Buy TSI', 'Buy Acum/Dist', 'Profitable']]
+        return self.buytable_df
 
     def get_selltable(self):
-        self.selltable = self.trades_df[['Sell P/E Ratio', 'Sell Fwd P/E Ratio', 'Sell P/B Ratio', 'Sell RSI', 'Sell Upper BB', 'Sell Bollinger %b', 'Sell Lower BB', 'Sell vol', 'Sell Z Score', 'Sell MACD', 'Sell VWAP', 'Sell OBV', 'Sell Stoch', 'Sell Awesome Oscillator', 'Sell Ultimate Oscillator', 'Sell TSI', 'Sell Acum/Dist', 'Profitable']]
-        return self.selltable
+        self.selltable_df = self.trades_df[['Sell P/E Ratio', 'Sell Fwd P/E Ratio', 'Sell P/B Ratio', 'Sell RSI', 'Sell Upper BB', 'Sell Bollinger %b', 'Sell Lower BB', 'Sell vol', 'Sell Z Score', 'Sell MACD', 'Sell VWAP', 'Sell OBV', 'Sell Stoch', 'Sell Awesome Oscillator', 'Sell Ultimate Oscillator', 'Sell TSI', 'Sell Acum/Dist', 'Profitable']]
+        return self.selltable_df

@@ -18,18 +18,17 @@ pd.options.mode.copy_on_write = True
 # Also it will include the price change since the last recommendation
 
 class Recommendations:
-    def __init__(self, start = pd.to_datetime('today') - pd.DateOffset(months=6), end = pd.to_datetime('today')):
+    def __init__(self, start = pd.to_datetime('today') - pd.DateOffset(months=12), end = pd.to_datetime('today')):
         self.start = start
         self.end = end
-        self.tickers500 = tickers500
-        self.buy_recommendations_df = pd.DataFrame()
-        self.sell_recommendations_df = pd.DataFrame()
+        self.tickers500 = tickers500[0:500]
         self.get_stock_data()
         self.current_recommendations()
 
     def get_stock_data(self):
         self.tradingstrategy1_df = pd.DataFrame()
         self.signals_df = pd.DataFrame()
+        self.buytable_df = pd.DataFrame()
         for ticker in self.tickers500:
             stock = Ticker(ticker, self.start, self.end)
             # stock_df = stock_df._append(stock.df)
@@ -37,15 +36,31 @@ class Recommendations:
             tradingS = TradingStrategy1(techA)
             self.signals_df = self.signals_df._append(tradingS.all_signals_df)
             self.tradingstrategy1_df = self.tradingstrategy1_df._append(tradingS.trades_df)
+            self.buytable_df = self.buytable_df._append(tradingS.buytable_df)
         self.signals_df = self.signals_df.sort_values(by='Date')
 
+
     def current_recommendations(self):
+        self.buy_recommendations_df = pd.DataFrame()
+        self.sell_recommendations_df = pd.DataFrame()
         for _, row in self.signals_df.iterrows():
             if row['Signal'] == 'Buy':
                 self.buy_recommendations_df = self.buy_recommendations_df.append(row)
             elif row['Signal'] == 'Sell':
                 self.sell_recommendations_df = self.sell_recommendations_df.append(row)
         self.buy_recommendations_df = self.buy_recommendations_df.sort_values(by='Date')
+        self.buy_recommendations_df = self.buy_recommendations_df.reset_index(drop=True)
         self.sell_recommendations_df = self.sell_recommendations_df.sort_values(by='Date')
-        # self.buy_recommendations_df = self.buy_recommendations_df.drop_duplicates(subset=['Ticker'])
-        # self.sell_recommendations_df = self.sell_recommendations_df.drop_duplicates(subset=['Ticker'])
+        self.sell_recommendations_df = self.sell_recommendations_df.reset_index(drop=True)
+
+    def print_buy_recommendations(self):
+        print('Buy Recommendations')
+        print(self.buy_recommendations_df)
+
+    def print_sell_recommendations(self):
+        print('Sell Recommendations')
+        print(self.sell_recommendations_df)
+
+    def print_buytable(self):
+        print('Buy Table')
+        print(self.buytable_df)
