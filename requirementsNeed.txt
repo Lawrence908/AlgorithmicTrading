@@ -1,0 +1,35 @@
+jupyter
+yfinance
+statsmodels
+datetime
+feedparser
+requests_html
+pandas_ta
+ta
+pandas_datareader
+streamlit
+torch
+    nvidia-nvjitlink-cu12
+    nvidia-cusparse-cu12
+    nvidia-cublas-cu12
+    mpmath
+    MarkupSafe
+    filelock
+    typing-extensions
+    triton
+    sympy
+    nvidia-nvtx-cu12
+    nvidia-nccl-cu12
+    nvidia-cusolver-cu12
+    nvidia-curand-cu12
+    nvidia-cufft-cu12
+    nvidia-cudnn-cu12
+    nvidia-cuda-runtime-cu12
+    nvidia-cuda-nvrtc-cu12
+    nvidia-cuda-cupti-cu12
+    networkx
+    jinja2
+    fsspec
+seaborn
+plotly
+# prophet

@@ -222,8 +222,8 @@ class MoonShot2:
             #     print('Early stopping')
             #     break
 
-            # if (epoch + 1) % 2 == 0:
-            #     print(f'Epoch [{epoch+1}/{self.num_epochs}], Train Loss: {self.loss.item():.4f}, Val Loss: {self.val_loss:.4f}, Val Accuracy: {self.val_accuracy:.4f}')
+            if (epoch + 1) % 2 == 0:
+                print(f'Epoch [{epoch+1}/{self.num_epochs}], Train Loss: {self.loss.item():.4f}, Val Loss: {self.val_loss:.4f}, Val Accuracy: {self.val_accuracy:.4f}')
 
             self.losses.append(self.loss.item())
             self.val_losses.append(self.val_loss)
