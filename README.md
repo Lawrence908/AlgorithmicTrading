@@ -1,5 +1,52 @@
 # AlgorithmicTrading
+---
+### Installation
+How to install the program and prepare for running.
+Download files
+Navigate to main folder - 				“/pyStockAnalyzer”
+Create a new virtual environment -			“python3 -m venv .venv”
+Activate the environment - 				“source .venv/bin/activate
+Install required packages - 				“pip install -r requirements.txt”
 
+
+Below section only required if viewing notebooks:
+
+	if viewing notebooks in VS Code - 
+
+		Install Python extension into VSCode -
+ 		Install Jupyter extension into VSCode -
+
+	else … follow now your IDE procure
+
+    Install python kernel for your created venv - 	“python3 -m ipykernel install --user --name=.venv”
+    Select your installed kernel to be used with your notebook - “Select Kernel” button in top right.
+    Alternatively notebooks may be viewed in any application capable of handling *.ipynb files
+
+Helpful link
+
+Running the visual program outputs:
+
+    Run the streamlit servers:
+
+	“streamlit run finalPrototype.py”
+	“streamlit run finalMoonShot.py”
+	“streamlit run finalRecommendations.py”
+
+    Run the notebooks with provided display(open file, select kernel, “Run All”)
+
+ 	AlgorithmicTrading.ipynb
+ 	moonShot2Testing.ipynb
+ 	posititionsTesting.ipynb
+ 	recommendationsTesting.ipynb
+
+---
+### Version history:
+---
+v 1.0
+
+- 
+- 
+---
 V 0.2
 - shortTermSignals.py and longTermSignals.py
 - short SMAs = 5, 10, 20, 50. 

@@ -65,9 +65,10 @@ class SimpleNN(nn.Module):
         # x = self.fc2a(x)
 
 class MoonShot2:
-    def __init__(self, buytable: pd.DataFrame, test_size: float = 0.2, random_state: int = 42):
+    def __init__(self, buytable: pd.DataFrame, num_epochs = 100, test_size: float = 0.2, random_state: int = 42):
         self.buy_trades_core = buytable
         self.buy_trades_core.fillna(0, inplace=True)
+        self.num_epochs = num_epochs
         self.preprocess_data(test_size, random_state)
         self.train_and_tune()
         self.reshape()
@@ -142,7 +143,7 @@ class MoonShot2:
         output_size = 1
         # learning_rate = 0.00001
         learning_rate = 0.001
-        self.num_epochs = 100
+        # self.num_epochs = 100
 
         # Loss: 0.4661
         # Loss with 2 layers: 0.4745
