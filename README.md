@@ -1,4 +1,4 @@
-# AlgorithmicTrading
+# pyStockAnalyzer
 ---
 ### Installation
 How to install the program and prepare for running.
