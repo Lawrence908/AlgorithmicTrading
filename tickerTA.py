@@ -304,16 +304,16 @@ class TechnicalAnalysis:
         # self.df = self.Ticker.df.copy(deep=True)
         self.df = ticker_df.copy(deep=True)
         self.df_ta = self.df.copy(deep=True)
-        self.add_basic_indicators()
-        self.add_bollinger_bands()
+        # self.add_basic_indicators()
+        # self.add_bollinger_bands()
         self.add_z_score()
-        self.short_term_moving_averages()
-        self.long_term_moving_averages()
-        self.short_exponential_moving_averages()
-        self.long_exponential_moving_averages()
+        # self.short_term_moving_averages()
+        # self.long_term_moving_averages()
+        # self.short_exponential_moving_averages()
+        # self.long_exponential_moving_averages()
         self.add_macd()
         self.add_momentum_indicators()
-        self.add_volume_indicators()
+        # self.add_volume_indicators()
 
         # for method in dir(self):
         #     if method.startswith('add_'):
