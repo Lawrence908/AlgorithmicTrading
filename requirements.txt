@@ -1,3 +1,4 @@
+pip
 jupyter
 ipykernel
 yfinance
@@ -16,7 +17,8 @@ pandas_ta
 ta
 pandas_datareader
 streamlit
-torch
+# torch
+# torch==1.11.0+cu115 --extra-index-url https://download.pytorch.org/whl/cu115 --no-cache-dir
 scikit-learn
 seaborn
 plotly

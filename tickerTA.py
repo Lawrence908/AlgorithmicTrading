@@ -294,12 +294,15 @@ class Ticker:
 
 
 class TechnicalAnalysis:
-    def __init__(self, ticker: Ticker):
-        self.Ticker = ticker
-        self.start = self.Ticker.start
-        self.end = self.Ticker.end
-        self.symbol = self.Ticker.symbol
-        self.df = self.Ticker.df.copy(deep=True)
+    # def __init__(self, ticker: Ticker):
+    def __init__(self, ticker: str, ticker_df: pd.DataFrame):
+        # self.Ticker = ticker
+        # self.start = self.Ticker.start
+        # self.end = self.Ticker.end
+        # self.symbol = self.Ticker.symbol
+        self.symbol = ticker
+        # self.df = self.Ticker.df.copy(deep=True)
+        self.df = ticker_df.copy(deep=True)
         self.df_ta = self.df.copy(deep=True)
         self.add_basic_indicators()
         self.add_bollinger_bands()
@@ -450,7 +453,7 @@ class TechnicalAnalysis:
         plt.figure(figsize=(20, 10))
         self.z_score_df = self.df[['Adj Close', 'Z Score Adj Close']].copy(deep=True)
         self.z_score_df.dropna(inplace=True)
-        plt.plot(self.z_score_df['Adj Close'], label=self.Ticker.symbol, alpha=1, color='black')
+        plt.plot(self.z_score_df['Adj Close'], label=self.symbol, alpha=1, color='black')
         plt.plot(self.z_score_df['Z Score Adj Close'], label='Z Score', alpha=0.5)
         plt.legend()
         plt.show()
@@ -460,7 +463,7 @@ class TechnicalAnalysis:
         plt.figure(figsize=(20, 10))
         self.short_sma_df = self.df[['Adj Close', 'SMA_10', 'SMA_20', 'SMA_30']].copy(deep=True)
         self.short_sma_df.dropna(inplace=True)
-        plt.plot(self.short_sma_df['Adj Close'], label=self.Ticker.symbol, alpha=1, color='black')
+        plt.plot(self.short_sma_df['Adj Close'], label=self.symbol, alpha=1, color='black')
         plt.plot(self.short_sma_df['SMA_10'], label='SMA 10', alpha=0.5)
         plt.plot(self.short_sma_df['SMA_20'], label='SMA 20', alpha=0.5)
         plt.plot(self.short_sma_df['SMA_30'], label='SMA 30', alpha=0.5)
@@ -472,7 +475,7 @@ class TechnicalAnalysis:
         plt.figure(figsize=(20, 10))
         self.long_sma_df = self.df[['Adj Close', 'SMA_50', 'SMA_100', 'SMA_200']].copy(deep=True)
         self.long_sma_df.dropna(inplace=True)
-        plt.plot(self.long_sma_df['Adj Close'], label=self.Ticker.symbol, alpha=1, color='black')
+        plt.plot(self.long_sma_df['Adj Close'], label=self.symbol, alpha=1, color='black')
         plt.plot(self.long_sma_df['SMA_50'], label='SMA 50', alpha=0.5)
         plt.plot(self.long_sma_df['SMA_100'], label='SMA 100', alpha=0.5)
         plt.plot(self.long_sma_df['SMA_200'], label='SMA 200', alpha=0.5)
@@ -496,7 +499,7 @@ class TechnicalAnalysis:
     def plot_bollinger_bands(self):
         plt.figure(figsize=(20, 10))
         self.df_ta.dropna(inplace=True)
-        plt.plot(self.df_ta['Adj Close'], label=self.Ticker.symbol, alpha=1)
+        plt.plot(self.df_ta['Adj Close'], label=self.symbol, alpha=1)
         plt.plot(self.df_ta['ma_20'], label='Moving Avg(20 day)', alpha=0.70)
         plt.plot(self.df_ta['upper_bb'], label='Bollinger Band High', alpha=0.55)
         plt.plot(self.df_ta['lower_bb'], label='Bollinger Band Low', alpha=0.55)
@@ -505,12 +508,13 @@ class TechnicalAnalysis:
         plt.close()
 
     def generate_correlation_matrix(self):
-        self.df.dropna(inplace=True)
-        self.correlation_matrix = self.df.corr()
+        self.df_ta.dropna(inplace=True)
+        self.df_ta.drop(columns=['Date'], inplace=True)
+        self.correlation_matrix = self.df_ta.corr()
         return self.correlation_matrix
 
     def autocorrelation_plot(self):
-        self.autocorrelation_df = self.df[['Adj Close']].copy(deep=True)
+        self.autocorrelation_df = self.df_ta[['Adj Close']].copy(deep=True)
         self.autocorrelation_df.dropna(inplace=True)
         autocorrelation_plot(self.autocorrelation_df)
         plt.show()
